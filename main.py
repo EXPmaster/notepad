@@ -20,6 +20,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # TODO: Open Folder
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
+        self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
         """-------- Edit ---------"""
         self.actionUndo.triggered.connect(self.textEditor.undo)  # 撤销
         self.actionRedo.triggered.connect(self.textEditor.redo)  # 重做
@@ -113,6 +114,13 @@ class Notebook(QMainWindow, Ui_CodePlus):
         else:
             """文件路径不存在则另存为"""
             self.saveasEvent()
+
+    def closefileEvent(self):
+        if self.textEditor.document().isModified():
+            """以修改文件，需要保存"""
+            ret_code = QMessageBox.information(self, '提示', '文件尚未保存，需要保存吗？',
+                                               QMessageBox.Yes | QMessageBox.No)
+            print(ret_code)
 
     def rewardEvent(self):
         r"""
