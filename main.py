@@ -2,7 +2,8 @@
 
 import sys
 from UI_forms import Ui_CodePlus
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel
+from PyQt5 import QtWidgets
 from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
@@ -34,8 +35,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- File ---------"""
         self.actionNew.triggered.connect(self.newfileEvent)  # 新建
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
+        self.actionOpen_Folder.triggered.connect(self.openfolderEvent)# 打开文件夹
         # TODO: Open Folder
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
+        self.actionSave_All.triggered.connect(self.saveallEvent)  # 全部保存
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
         self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
         self.tabWidget.tabCloseRequested.connect(self.closefileEvent)  # 关闭tab
@@ -47,14 +50,30 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionPast.triggered.connect(self.text_paste)  # 粘贴
         # # TODO: Find
         self.actionSelect_All.triggered.connect(self.text_selectAll)  # 全选
+        """-------- Language ---------"""
+        self.actionPlain_Text.triggered.connect(self.selectLanguage)
+        self.actionC.triggered.connect(self.selectLanguage)
+        self.actionMarkdown.triggered.connect(self.selectLanguage)
+        self.actionPython.triggered.connect(self.selectLanguage)
         """-------- Whatever... ---------"""
         self.actionQR_Code.triggered.connect(self.rewardEvent)  # 打赏
+        """-------- Status bar ---------"""
+        self.lb_margin = QtWidgets.QLabel()
+        self.lb_lang = QtWidgets.QLabel()
+        self.statusbar.addWidget(self.lb_margin, 4)
+        self.statusbar.addWidget(self.lb_lang, 1)
+        """-------- Dir Tree ---------"""
+        self.dirtree = QtWidgets.QTreeView()
+        self.dirtree.setObjectName('dirtree')
+        self.gridLayout_1.addWidget(self.dirtree, 0, 0)
+        self.gridLayout_1.setColumnStretch(0, 2)
+        self.gridLayout_1.setColumnStretch(1, 5)
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
-        self.language = 'txt'  # 当前语言
+        # self.language = 'txt'  # 当前语言
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -95,6 +114,21 @@ class Notebook(QMainWindow, Ui_CodePlus):
         if isinstance(textedit, QTextEdit):
             textedit.selectAll()
 
+    def selectLanguage(self):
+        r"""
+            选择语言
+        :return:
+        """
+        language_support = {
+            'Plain Text': 'txt',
+            'C': 'c',
+            'Markdown': 'md',
+            'Python': 'py'
+        }
+        textedit = self.__get_textEditor()
+        signal_src = self.sender().text()
+        textedit.setlanguage(language_support[signal_src])
+
     def __find_tab_by_index(self, index):
         r"""
             通过currentIndex获取字典中的
@@ -120,8 +154,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :return: None
         """
         self.__create_tab()
-        index = self.tabWidget.count() - 1
-        self.tabWidget.setCurrentIndex(index)
 
     def __create_tab(self, name=None):
         r"""
@@ -138,17 +170,14 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabWidget.addTab(tab_new, newfile_name)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
-        text_editor = TextEditorS(name=newfile_name)
+        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget)
         # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
-
-    # TODO: 文件改变则在tab中文件名末尾加上'*'
-    # def __handle_textChange(self):
-    #     index = self.tabWidget.currentIndex()
-    #     if not self.tabWidget.tabText(index).endswith('*'):
-    #         pass
+        # 跳转到新页面
+        index = self.tabWidget.count() - 1
+        self.tabWidget.setCurrentIndex(index)
 
     def openfileEvent(self, file_path=None):
         r"""
@@ -167,7 +196,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
             for tabitem in self.tab_dict.values():
                 tmp_edititem = tabitem.text
-                # print(tmp_edititem.objectName())
                 if file_fullname == tmp_edititem.objectName():
                     return
             self.__create_tab(name=file_fullname)
@@ -175,19 +203,27 @@ class Notebook(QMainWindow, Ui_CodePlus):
             textedit = self.__get_textEditor(index=index)
             file_type = file_path.split('.')[-1]
             self.language = file_type
-            # print('file path: {}, file type: {}'.format(file_path, file_type))
-            text = ''
-            try:
-                """读文件"""
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    for line in f.readlines():
-                        text += line
-                    self.file_save_path = file_path
-                textedit.setPlainText(text)
-                self.tabWidget.setCurrentIndex(index)
-            except FileNotFoundError:
-                """弹出窗口，提示文件不存在"""
-                QMessageBox.warning(self, 'Warning', 'Text does not exist!')
+            textedit.load(file_path)
+
+    def openfolderEvent(self):
+        folder_path = QFileDialog.getExistingDirectory(self, '请选择打开的文件夹')
+        self.model = QDirModel()
+        self.dirtree.setModel(self.model)
+        self.dirtree.setRootIndex(self.model.index(folder_path))
+        self.dirtree.setAnimated(False)
+        self.dirtree.setIndentation(20)
+        self.dirtree.setSortingEnabled(True)
+        self.dirtree.doubleClicked.connect(self.__choose_file)
+        self.dirtree.setWindowTitle("Dir View")
+        self.dirtree.setHeaderHidden(True)
+
+    def __choose_file(self, index):
+        file_path = self.model.filePath(index)
+        # print(file_path)
+        if os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
+            self.openfileEvent(file_path)
+        else:
+            QMessageBox.warning(self, u'警告', u'文件类型不支持！')
 
     def saveasEvent(self):
         r"""
@@ -214,7 +250,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
             全部保存
         :return:
         """
-        ...
+        for tabitem in self.tab_dict.values():
+            textedit = tabitem.text
+            textedit.save()
 
     def closefileEvent(self, index):
         r"""

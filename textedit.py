@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 import os
 
@@ -9,7 +9,7 @@ class TextEditorS(QTextEdit):
     r"""
         文本框类
     """
-    def __init__(self, name, parent=None):
+    def __init__(self, name, parent=None, parent_tabWidget=None):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setObjectName(name)
@@ -17,9 +17,23 @@ class TextEditorS(QTextEdit):
         self.setPlainText('')
         self.filepath = None
         self.language = 'txt'
+        self.parent_tabw = parent_tabWidget
 
     def isModified(self):
         return self.document().isModified()
+
+    def keyPressEvent(self, e):
+        r"""
+            监测文件内容是否修改，若修改则在tab中文件名末尾
+            添加一个 '*'
+        :param e:
+        :return:
+        """
+        super().keyPressEvent(e)
+        index = self.parent_tabw.currentIndex()
+        tabtext = self.parent_tabw.tabText(index)
+        if not tabtext.endswith('*'):
+            self.parent_tabw.setTabText(index, tabtext + '*')
 
     def language(self):
         return self.language
@@ -44,8 +58,12 @@ class TextEditorS(QTextEdit):
             # 设置当前文件名
             _, tmpfilename = os.path.split(file_path)
             self.setObjectName(tmpfilename)
+            # 设置语言
+            _, prefix = os.path.splitext(tmpfilename)
+            self.setlanguage(prefix[1:])
         except FileNotFoundError:
-            ...
+            """弹出窗口，提示文件不存在"""
+            QMessageBox.warning(self, 'Warning', 'Text does not exist!')
 
     def save(self):
         r"""
@@ -57,6 +75,11 @@ class TextEditorS(QTextEdit):
                 text = self.toPlainText()
                 f.writelines(text)
             self.document().setModified(False)
+            # 把 '*' 去掉
+            index = self.parent_tabw.currentIndex()
+            tabtext = self.parent_tabw.tabText(index)
+            if tabtext.endswith('*'):
+                self.parent_tabw.setTabText(index, tabtext[:-1])
 
         else:
             self.saveas()
@@ -78,6 +101,9 @@ class TextEditorS(QTextEdit):
             # 设置当前文件名
             _, tmpfilename = os.path.split(file_path)
             self.setObjectName(tmpfilename)
+            # 设置语言
+            _, prefix = os.path.splitext(tmpfilename)
+            self.setlanguage(prefix[1:])
             return tmpfilename
         else:
             # QMessageBox.warning(self, 'Warning', 'File name should not be empty')
