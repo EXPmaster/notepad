@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from UI_forms import Ui_Form_reward
 from PyQt5 import QtWidgets
 import cv2

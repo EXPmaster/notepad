@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import sys
 from UI_forms import Ui_CodePlus
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit
@@ -119,36 +120,48 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :return: None
         """
         self.__create_tab()
+        index = self.tabWidget.count() - 1
+        self.tabWidget.setCurrentIndex(index)
 
     def __create_tab(self, name=None):
         r"""
             新建tab
         :return: None
         """
+
         self.tabidx += 1
         newfile_name = f'New File {self.tabidx}' if name is None else name
         new_tabname = 'tab_' + str(self.tabidx)
         tab_new = QWidget()
         tab_new.setObjectName(new_tabname)
+
         self.tabWidget.addTab(tab_new, newfile_name)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
         text_editor = TextEditorS(name=newfile_name)
+        # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
 
-    def openfileEvent(self):
+    # TODO: 文件改变则在tab中文件名末尾加上'*'
+    # def __handle_textChange(self):
+    #     index = self.tabWidget.currentIndex()
+    #     if not self.tabWidget.tabText(index).endswith('*'):
+    #         pass
+
+    def openfileEvent(self, file_path=None):
         r"""
             打开文件事件函数
         :return: None
         """
-        file_path, _ = QFileDialog.getOpenFileName(self, 'Choose a file', '/',
-                                                        'All Files (*);;'
-                                                        'Text Files (*.txt);;'
-                                                        'Markdown Files (*.md);;'
-                                                        'C Sources (*.c);;'
-                                                        'Python Scripts (*.py)')
+        if not file_path:
+            file_path, _ = QFileDialog.getOpenFileName(self, 'Choose a file', '/',
+                                                                'All Files (*);;'
+                                                                'Text Files (*.txt);;'
+                                                                'Markdown Files (*.md);;'
+                                                                'C Sources (*.c);;'
+                                                                'Python Scripts (*.py)')
         if len(file_path):
             _, file_fullname = os.path.split(file_path)
 
@@ -171,6 +184,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
                         text += line
                     self.file_save_path = file_path
                 textedit.setPlainText(text)
+                self.tabWidget.setCurrentIndex(index)
             except FileNotFoundError:
                 """弹出窗口，提示文件不存在"""
                 QMessageBox.warning(self, 'Warning', 'Text does not exist!')
@@ -195,11 +209,21 @@ class Notebook(QMainWindow, Ui_CodePlus):
         textedit = self.__get_textEditor()
         textedit.save()
 
+    def saveallEvent(self):
+        r"""
+            全部保存
+        :return:
+        """
+        ...
+
     def closefileEvent(self, index):
         r"""
             关闭文件事件函数
         :return: None
         """
+        if self.tabWidget.count() == 0:
+            self.close()
+            return
         cur_tab_name, tabitem = self.__find_tab_by_index(index)
         textedit = tabitem.text
         # print(cur_tab_name)
@@ -226,7 +250,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """
         self.qrcode_window = Reward()
         self.qrcode_window.show()
-
+        
     def aboutusEvent(self):
         r"""
             关于我们事件函数
@@ -239,7 +263,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         r"""
             关闭notebook事件函数
         :param event:
-        :return:
+        :return: None
         """
         check_quit = True
         for tabitem in self.tab_dict.values():

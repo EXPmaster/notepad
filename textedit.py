@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
 import os
