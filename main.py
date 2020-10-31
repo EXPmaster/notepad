@@ -8,6 +8,7 @@ from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
 import os
+from editor import Editor
 
 
 class TabItem:
@@ -190,6 +191,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
         text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget, language=language)
+        # text_editor = Editor()
         # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
@@ -221,7 +223,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
             for tabitem in self.tab_dict.values():
                 tmp_edititem = tabitem.text
                 if file_fullname == tmp_edititem.objectName():
-                    # TODO: 当文件已经打开的情况下，跳转到对应的tab
+                    index = self.tabWidget.indexOf(tabitem.tab)
+                    self.tabWidget.setCurrentIndex(index)
                     return
             self.__create_tab(name=file_fullname)
             index = self.tabWidget.count() - 1
@@ -300,7 +303,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             textedit.closeText()
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
-        # print(self.tab_dict)
 
     def rewardEvent(self):
         r"""

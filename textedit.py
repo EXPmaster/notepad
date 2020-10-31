@@ -94,7 +94,8 @@ class TextEditorS(QTextEdit):
                 text = self.toPlainText()
                 f.writelines(text)
             self.document().setModified(False)
-
+            # 路径
+            self.filepath = file_path
             # 设置当前文件名
             _, tmpfilename = os.path.split(file_path)
             self.setObjectName(tmpfilename)
