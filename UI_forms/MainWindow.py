@@ -22,7 +22,7 @@ class Ui_CodePlus(object):
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
-        self.tabWidget.setUsesScrollButtons(False)
+        self.tabWidget.setUsesScrollButtons(True)
         self.tabWidget.setDocumentMode(True)
         self.tabWidget.setTabsClosable(True)
         self.tabWidget.setMovable(True)

@@ -9,14 +9,14 @@ class TextEditorS(QTextEdit):
     r"""
         文本框类
     """
-    def __init__(self, name, parent=None, parent_tabWidget=None):
+    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt'):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setObjectName(name)
         self.document().setModified(False)
         self.setPlainText('')
         self.filepath = None
-        self.language = 'txt'
+        self.language = language
         self.parent_tabw = parent_tabWidget
 
     def isModified(self):
@@ -34,9 +34,6 @@ class TextEditorS(QTextEdit):
         tabtext = self.parent_tabw.tabText(index)
         if not tabtext.endswith('*'):
             self.parent_tabw.setTabText(index, tabtext + '*')
-
-    def language(self):
-        return self.language
 
     def setlanguage(self, language):
         self.language = language
