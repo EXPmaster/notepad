@@ -4,6 +4,7 @@ import sys
 from UI_forms import Ui_CodePlus
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QTextCursor
 from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
@@ -128,6 +129,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         textedit = self.__get_textEditor()
         signal_src = self.sender().text()
         textedit.setlanguage(language_support[signal_src])
+        if signal_src == 'Markdown':
+            textedit.document().blockCountChanged.connect(self.show_markdown)
 
     def __find_tab_by_index(self, index):
         r"""
@@ -318,7 +321,23 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 event.ignore()
         else:
             self.close()
+    
+    def show_markdown(self):
+        textedit = self.__get_textEditor()
+        txtcur = textedit.textCursor()
+        linenum = textedit.document().lineCount()
+        print(linenum)
+        if linenum == 1:
+            return
+        currentBlock = textedit.document().findBlockByLineNumber(linenum-2)
+        blocktext = currentBlock.text()
+        textedit.document().setMarkdown(blocktext)
+        # txtcur.movePosition(QTextCursor.Down)
+        # txtcur.movePosition(QTextCursor.StartOfLine)
+        # textedit.append('\n')
 
+        #    textedit.setMarkdown(content)
+            
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
