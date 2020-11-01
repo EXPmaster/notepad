@@ -8,7 +8,6 @@ from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
 import os
-from editor import Editor
 
 
 class TabItem:
