@@ -17,8 +17,10 @@ class Ui_CodePlus(object):
         CodePlus.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(CodePlus)
         self.centralwidget.setObjectName("centralwidget")
+
         self.gridLayout_1 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_1.setObjectName("gridLayout_1")
+
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -28,8 +30,11 @@ class Ui_CodePlus(object):
         self.tabWidget.setMovable(True)
         self.tabWidget.setTabBarAutoHide(False)
         self.tabWidget.setObjectName("tabWidget")
+
         self.gridLayout_1.addWidget(self.tabWidget, 0, 1, 2, 1)
+
         CodePlus.setCentralWidget(self.centralwidget)
+
         self.menubar = QtWidgets.QMenuBar(CodePlus)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
@@ -50,9 +55,11 @@ class Ui_CodePlus(object):
         self.menuTools = QtWidgets.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
         CodePlus.setMenuBar(self.menubar)
+
         self.statusbar = QtWidgets.QStatusBar(CodePlus)
         self.statusbar.setObjectName("statusbar")
         CodePlus.setStatusBar(self.statusbar)
+
         self.actionAbout_us = QtWidgets.QAction(CodePlus)
         self.actionAbout_us.setObjectName("actionAbout_us")
         self.actionExit = QtWidgets.QAction(CodePlus)
@@ -109,6 +116,7 @@ class Ui_CodePlus(object):
         self.actionClose.setObjectName("actionClose")
         self.actionSave_All = QtWidgets.QAction(CodePlus)
         self.actionSave_All.setObjectName("actionSave_All")
+        
         self.menuCode.addAction(self.actionAbout_us)
         self.menuCode.addAction(self.actionExit)
         self.menuFile.addAction(self.actionNew)

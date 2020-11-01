@@ -2,6 +2,7 @@
 
 import sys
 from UI_forms import Ui_CodePlus
+from all_windows import Find_Win
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel
 from PyQt5 import QtWidgets
 from reward_handler import Reward
@@ -48,7 +49,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionCut.triggered.connect(self.text_cut)  # 剪切
         self.actionCopy.triggered.connect(self.text_copy)  # 复制
         self.actionPast.triggered.connect(self.text_paste)  # 粘贴
-        # # TODO: Find
+        self.actionFind.triggered.connect(self.text_find)  # 查找
+        self.win_find_is_show = False
         self.actionSelect_All.triggered.connect(self.text_selectAll)  # 全选
         """-------- Language ---------"""
         self.actionPlain_Text.triggered.connect(self.selectLanguage)
@@ -84,12 +86,24 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- 初始执行的操作 ---------"""
         self.__create_tab()  # 初始创建一个tab
 
+    #查找
+    def text_find(self):
+        textedit = self.__get_textEditor()
+        if isinstance(textedit, QTextEdit):
+            if not self.win_find_is_show:
+                self.win_find_is_show = True
+                self.find_win = Find_Win(self,textedit)
+                self.find_win.show()
+            
+
+
     def text_undo(self):
         textedit = self.__get_textEditor()
         if isinstance(textedit, QTextEdit):
             textedit.undo()
 
     def text_redo(self):
+        
         textedit = self.__get_textEditor()
         if isinstance(textedit, QTextEdit):
             textedit.redo()
