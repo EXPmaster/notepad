@@ -8,6 +8,7 @@ from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
 import os
+from preference import Preference
 
 
 class TabItem:
@@ -32,6 +33,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Code ---------"""
         self.actionAbout_us.triggered.connect(self.aboutusEvent)  # 关于我们
         self.actionExit.triggered.connect(self.closeEvent)  # 退出
+        self.actionPreference.triggered.connect(self.preferenceEvent)# 偏好设置
         """-------- File ---------"""
         self.actionNew.triggered.connect(self.newfileEvent)  # 新建
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
@@ -71,6 +73,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
+        self.fontsize = 12
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
@@ -189,7 +192,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         tab_new.setObjectName(new_tabname)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
-        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget, language=language)
+        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget,
+                                  language=language, font_size=self.fontsize)
         # text_editor = Editor()
         # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
@@ -303,6 +307,15 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
 
+    def setFontSizeEvent(self):
+        r"""
+            改变所有textedit的字体大小
+        :return:
+        """
+        for tabitem in self.tab_dict.values():
+            textedit = tabitem.text
+            textedit.setFontSize(self.fontsize)
+
     def rewardEvent(self):
         r"""
             打赏事件函数
@@ -310,7 +323,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """
         self.qrcode_window = Reward()
         self.qrcode_window.show()
-        
+        # TODO: 修改字体
+
+    def preferenceEvent(self):
+        r"""
+            调出偏好设置
+        :return:
+        """
+        self.preference = Preference(par=self)
+        self.preference.show()
+
     def aboutusEvent(self):
         r"""
             关于我们事件函数

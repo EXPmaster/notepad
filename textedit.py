@@ -9,7 +9,8 @@ class TextEditorS(QTextEdit):
     r"""
         文本框类
     """
-    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt'):
+    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt',
+                 font_size=12):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setObjectName(name)
@@ -18,6 +19,7 @@ class TextEditorS(QTextEdit):
         self.filepath = None
         self.language = language
         self.parent_tabw = parent_tabWidget
+        self.setFontSize(font_size)
 
     def isModified(self):
         return self.document().isModified()
@@ -37,6 +39,14 @@ class TextEditorS(QTextEdit):
 
     def setlanguage(self, language):
         self.language = language
+
+    def setFontSize(self, fontSize=12):
+        r"""
+            修改字体大小
+        :param fontSize:
+        :return:
+        """
+        self.setStyleSheet(f"font: {fontSize}pt'.AppleSystemUIFont';")
 
     def load(self, file_path):
         r"""
