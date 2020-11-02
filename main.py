@@ -3,14 +3,16 @@
 import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
+    QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
 from PyQt5 import QtWidgets
 from reward_handler import Reward
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QProcess
 from textedit import TextEditorS
 import os
 from preference import Preference
 from ide_edit import IDEeditor
+from PyQt5.QtGui import QPixmap, QIcon
 
 
 class TabItem:
@@ -79,7 +81,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.font_content = {'font': 'Andale Mono', 'size': 12}
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
-        self.language = 'txt'  # 当前语言
+        # self.language = 'txt'  # 当前语言
+        # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        self.actionRun.triggered.connect(self.new_run_event)
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -89,8 +93,79 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         """-------- 初始执行的操作 ---------"""
         self.__create_tab()  # 初始创建一个tab
-        self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
-        self.lb_lang.setText(self.language)
+
+        self.dock_win = QtWidgets.QDockWidget()
+        self.dock_tab = QtWidgets.QTabWidget()
+        self.dock_win.setWidget(self.dock_tab)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_win)
+        self.dock_tab.setTabPosition(QTabWidget.South)
+        self.teridx = 0
+        self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
+        self.dock_tab.setTabsClosable(True)
+        self.run_event = False
+
+    def new_run_event(self):
+        if not self.run_event:
+            self.run_browser = QtWidgets.QTextBrowser()
+            self.run_browser.ensureCursorVisible()
+            pix = QPixmap('./imgs/run.jpg')
+            icon = QIcon()
+            icon.addPixmap(pix)
+            self.dock_tab.addTab(self.run_browser, 'Run ')
+            index = self.dock_tab.count() - 1
+            self.dock_tab.setTabIcon(index, icon)
+            self.dock_tab.setCurrentIndex(index)
+        self.run_event = True
+        cur_path = self.__get_textEditor().filepath
+        if cur_path:
+            if os.path.splitext(cur_path)[-1] == '.py':
+                self.run_browser.clear()
+                cmd = 'python ' + cur_path
+                self.run_browser.append(cmd)
+                self.run_process = QProcess()
+                self.run_process.readyReadStandardOutput.connect(self.show_process)
+                self.run_process.readyReadStandardError.connect(self.show_error)
+                self.run_process.finished.connect(self.run_exit)
+                self.run_process.start(cmd)
+                self.actionRun.setDisabled(True)
+
+    def run_exit(self, exitcode):
+        self.run_browser.append('\nProcess finished with exit code ' + str(exitcode))
+        self.run_browser.moveCursor(self.run_browser.textCursor().End)
+        self.actionRun.setDisabled(False)
+
+    def keyPressEvent(self, e):
+        super().keyPressEvent(e)
+        print(e.key())
+
+    def show_error(self):
+        string = self.run_process.readAllStandardError()
+        print(string)
+        s = str(string, encoding='utf-8')
+        self.run_browser.append('<font color = red>' + s)
+
+    def show_process(self):
+        string = self.run_process.readAllStandardOutput()
+        s = str(string, encoding='utf-8')
+        self.run_browser.append(s[:-2])
+
+    # def new_terminal_event(self):
+    #     from threading import Thread
+    #     t = Thread(target=self.aaa)
+    #     t.start()
+    #
+    #     self.teridx += 1
+    #     self.temp = QTextEdit()
+    #     time.sleep(1)
+    #     calc_hwnd = win32gui.FindWindow(None, u'C:\WINDOWS\system32\cmd.exe')
+    #     print(calc_hwnd)
+    #
+    #     self.win = QWindow.fromWinId(calc_hwnd)
+    #
+    #     self.new_tab = self.createWindowContainer(self.win, self.temp)
+    #     self.new_tab.showMaximized()
+    #     # self.win.setKeyboardGrabEnabled(True)
+    #     # self.win.setMouseGrabEnabled(True)
 
     #查找
     def text_find(self):

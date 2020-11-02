@@ -42,6 +42,9 @@ class IDEeditor(QsciScintilla):
         self.setAutoIndent(True)
         self.setTabWidth(4)
 
+        self.lxr = ...
+        self.api = ...
+
     def keyPressEvent(self, e):
         r"""
             监测文件内容是否修改，若修改则在tab中文件名末尾
@@ -76,31 +79,38 @@ class IDEeditor(QsciScintilla):
         size = self.font_content['size']
         lexer_font = QFont(font, size)
         if language == 'py':
-            lexer = QsciLexerPython()
-            lexer.setFont(lexer_font)
-            self.setLexer(lexer)
+            self.lxr = QsciLexerPython()
+            self.lxr.setFont(lexer_font)
+            self.setLexer(self.lxr)
+            self.__pythonCompletion()
 
-            # 自动补全
-            self.api = QsciAPIs(lexer)
-            # api.add('class')
-            # pyqt_path = os.path.dirname(PyQt5.__file__)
-            # api.load(os.path.join(pyqt_path, "Qt/qsci/api/python/Python-3.6.api"))
-
-            self.api.prepare()
-            # print('OK')
-            self.setAutoCompletionThreshold(1)
-            self.setAutoCompletionSource(self.AcsAPIs)
         elif language == 'c':
-            lexer = QsciLexerCPP()
-            lexer.setFont(lexer_font)
-            self.setLexer(lexer)
+            self.lxr = QsciLexerCPP()
+            self.lxr.setFont(lexer_font)
+            self.setLexer(self.lxr)
         elif language == 'md':
-            lexer = QsciLexerMarkdown()
-            lexer.setFont(lexer_font)
-            self.setLexer(lexer)
+            self.lxr = QsciLexerMarkdown()
+            self.lxr.setFont(lexer_font)
+            self.setLexer(self.lxr)
         else:
             self.setLexer(None)
             self.setText(self.text())
+
+    def __pythonCompletion(self):
+        r"""
+            python 自动补全
+        :return:
+        """
+        # self.api = QsciAPIs(self.lxr)
+        # self.api.add('class')
+        # import PyQt5
+        # pyqt_path = os.path.dirname(PyQt5.__file__)
+        # self.api.load(os.path.join(pyqt_path, "Qt/qsci/api/python/Python-3.6.api"))
+
+        # self.api.prepare()
+        # print('OK')
+        self.setAutoCompletionThreshold(1)
+        self.setAutoCompletionSource(self.AcsAPIs)
 
     def setFontSize(self, font_content):
         r"""
