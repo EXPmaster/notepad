@@ -21,9 +21,6 @@ class TextEditorS(QTextEdit):
         self.language = language
         self.parent_tabw = parent_tabWidget
         self.setFontSize(font_size)
-        cur = self.textCursor()
-        cur.setPosition()
-
 
     def isModified(self):
         return self.document().isModified()

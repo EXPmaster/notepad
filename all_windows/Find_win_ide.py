@@ -17,7 +17,7 @@ class Find_Win(QMainWindow, Ui_Find):
 
         self.text_content = self.textedit.text()
         self.current_count = 1
-        # self.cur = self.textedit.textCursor()
+        self.cur = QTextEdit.textCursor(self.textedit)
         # self.cur = self.textedit.cursor()
         self.lineEdit_find_find.textChanged.connect(self.target_changed)
         self.lineEdit_mark_target.textChanged.connect(self.target_changed)
@@ -93,7 +93,7 @@ class Find_Win(QMainWindow, Ui_Find):
     def replace_one(self):
         # tc.selectedText()
         """如果没有选中，第一个replace先执行find选中"""
-        if self.selectedText() == '':
+        if self.cur.selectedText() == '':
             self.start = self.text_content.find(self.text_target, 0)
         else:
             self.replace()
@@ -102,28 +102,28 @@ class Find_Win(QMainWindow, Ui_Find):
     """替换光标选中的字符串"""
 
     def replace(self):
-        self.textedit.removeSelectedText()
+        self.cur.removeSelectedText()
         tcf = QTextCharFormat()
         self.text_rep_with = self.lineEdit_replace_with.text()
-        self.insertText(self.text_rep_with, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.cur.insertText(self.text_rep_with, tcf)
+        self.start = self.text_content.find(self.text_target, self.cur.position())
 
     """标记光标选中的字符串"""
 
     def mark(self):
-        self.textedit.removeSelectedText()
+        self.cur.removeSelectedText()
         tcf = QTextCharFormat()
         tcf.setForeground(QColor('red'))
-        self.textedit.insertText(self.text_target, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.cur.insertText(self.text_target, tcf)
+        self.start = self.text_content.find(self.text_target, self.cur.position())
 
     """取消标记光标选中的字符串"""
 
     def clear(self):
-        self.textedit.removeSelectedText()
+        self.cur.removeSelectedText()
         tcf = QTextCharFormat()
-        self.textedit.insertText(self.text_target, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.cur.insertText(self.text_target, tcf)
+        self.start = self.text_content.find(self.text_target, self.cur.position())
 
     """----curse移动选中指定位置start目标文本----"""
 
@@ -134,9 +134,9 @@ class Find_Win(QMainWindow, Ui_Find):
             self.select(self.start, len(self.text_target))
 
     def select(self, start, length):
-        self.textedit.setCursorPosition(start, start + length)
-        # self.cur.setPosition(start + length, QTextCursor.KeepAnchor)
-        # self.textedit.setTextCursor(self.cur)
+        self.cur.setPosition(start)
+        self.cur.setPosition(start + length, QTextCursor.KeepAnchor)
+        self.textedit.setTextCursor(self.cur)
 
     """----find tap页count操作----"""
 

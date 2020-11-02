@@ -3,7 +3,8 @@
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 import os
-from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP, QsciLexerMarkdown, QsciLexerCustom
+from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
+    QsciLexerMarkdown, QsciAPIs
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
 
@@ -37,7 +38,9 @@ class IDEeditor(QsciScintilla):
         # Current line visible with special background color
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
-
+        # 自动缩进
+        self.setAutoIndent(True)
+        self.setTabWidth(4)
 
     def keyPressEvent(self, e):
         r"""
@@ -76,6 +79,17 @@ class IDEeditor(QsciScintilla):
             lexer = QsciLexerPython()
             lexer.setFont(lexer_font)
             self.setLexer(lexer)
+
+            # 自动补全
+            self.api = QsciAPIs(lexer)
+            # api.add('class')
+            # pyqt_path = os.path.dirname(PyQt5.__file__)
+            # api.load(os.path.join(pyqt_path, "Qt/qsci/api/python/Python-3.6.api"))
+
+            self.api.prepare()
+            # print('OK')
+            self.setAutoCompletionThreshold(1)
+            self.setAutoCompletionSource(self.AcsAPIs)
         elif language == 'c':
             lexer = QsciLexerCPP()
             lexer.setFont(lexer_font)
