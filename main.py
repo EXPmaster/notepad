@@ -2,25 +2,26 @@
 
 import sys
 from UI_forms import Ui_CodePlus
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTextBrowser
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QTextCursor
 from reward_handler import Reward
 from PyQt5.QtCore import Qt
 from textedit import TextEditorS
+from code_edit import SimplePythonEditor
 import os
-
 
 class TabItem:
     r"""
         用于存放新建的Tab、layout、textEditor
     """
-    __slots__ = ['tab', 'layout', 'text']
+    __slots__ = ['tab', 'layout', 'text', 'textview']
 
-    def __init__(self, tab, layout, texteditor):
+    def __init__(self, tab, layout, texteditor, textview=None):
         self.tab = tab
         self.layout = layout
         self.text = texteditor
+        self.textview = textview
 
 
 class Notebook(QMainWindow, Ui_CodePlus):
@@ -74,7 +75,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabidx = 0
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
-        # self.language = 'txt'  # 当前语言
+        self.language = 'txt'  # 当前语言
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -84,6 +85,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         """-------- 初始执行的操作 ---------"""
         self.__create_tab()  # 初始创建一个tab
+        self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
+        self.lb_lang.setText(self.language)
 
     def text_undo(self):
         textedit = self.__get_textEditor()
@@ -128,9 +131,24 @@ class Notebook(QMainWindow, Ui_CodePlus):
         }
         textedit = self.__get_textEditor()
         signal_src = self.sender().text()
-        textedit.setlanguage(language_support[signal_src])
+        # textedit.setlanguage(language_support[signal_src])
+        language = language_support[signal_src]
+        textedit.setlanguage(language)
+        self.language = language
+        self.lb_lang.setText(self.language)
         if signal_src == 'Markdown':
-            textedit.document().blockCountChanged.connect(self.show_markdown)
+            self.markdown_handler()
+
+    def changeTab(self):
+        # super().tabWidget.changeEvent()
+        self.language = self.cur_language()
+        self.lb_lang.setText(self.language)
+
+    def cur_language(self):
+        if self.tabWidget.count() == 0:
+            return ''
+        language = self.__get_textEditor().language
+        return language
 
     def __find_tab_by_index(self, index):
         r"""
@@ -150,6 +168,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
             index = self.tabWidget.currentIndex()
         _, tabitem = self.__find_tab_by_index(index)
         return tabitem.text
+    
+    def __get_tabitem(self, index=None):
+        r"""
+            获取当前tab
+        :return: (object) tab
+        """
+        if index is None:
+            index = self.tabWidget.currentIndex()
+        _, tabitem = self.__find_tab_by_index(index)
+        return tabitem
 
     def newfileEvent(self):
         r"""
@@ -166,18 +194,21 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         self.tabidx += 1
         newfile_name = f'New File {self.tabidx}' if name is None else name
+        if name:
+            _, language = os.path.splitext(name)
+            language = language[1:]
+        else:
+            language = 'txt'
         new_tabname = 'tab_' + str(self.tabidx)
         tab_new = QWidget()
         tab_new.setObjectName(new_tabname)
-
-        self.tabWidget.addTab(tab_new, newfile_name)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
-        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget)
-        # text_editor.textChange.connect(self.__handle_textChange)
+        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget, language=language)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
+        self.tabWidget.addTab(tab_new, newfile_name)
         # 跳转到新页面
         index = self.tabWidget.count() - 1
         self.tabWidget.setCurrentIndex(index)
@@ -194,39 +225,41 @@ class Notebook(QMainWindow, Ui_CodePlus):
                                                                 'Markdown Files (*.md);;'
                                                                 'C Sources (*.c);;'
                                                                 'Python Scripts (*.py)')
+        # 判断文件是否可读取
+        if not os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
+            QMessageBox.warning(self, u'警告', u'文件类型不支持！')
+            return
         if len(file_path):
             _, file_fullname = os.path.split(file_path)
 
             for tabitem in self.tab_dict.values():
                 tmp_edititem = tabitem.text
                 if file_fullname == tmp_edititem.objectName():
+                    index = self.tabWidget.indexOf(tabitem.tab)
+                    self.tabWidget.setCurrentIndex(index)
                     return
             self.__create_tab(name=file_fullname)
             index = self.tabWidget.count() - 1
             textedit = self.__get_textEditor(index=index)
-            file_type = file_path.split('.')[-1]
-            self.language = file_type
             textedit.load(file_path)
 
     def openfolderEvent(self):
         folder_path = QFileDialog.getExistingDirectory(self, '请选择打开的文件夹')
-        self.model = QDirModel()
-        self.dirtree.setModel(self.model)
-        self.dirtree.setRootIndex(self.model.index(folder_path))
-        self.dirtree.setAnimated(False)
-        self.dirtree.setIndentation(20)
-        self.dirtree.setSortingEnabled(True)
-        self.dirtree.doubleClicked.connect(self.__choose_file)
-        self.dirtree.setWindowTitle("Dir View")
-        self.dirtree.setHeaderHidden(True)
+        if folder_path:
+            self.model = QDirModel()
+            self.dirtree.setModel(self.model)
+            self.dirtree.setRootIndex(self.model.index(folder_path))
+            self.dirtree.setAnimated(False)
+            self.dirtree.setIndentation(20)
+            self.dirtree.setSortingEnabled(True)
+            self.dirtree.doubleClicked.connect(self.__choose_file)
+            self.dirtree.setWindowTitle("Dir View")
+            self.dirtree.setHeaderHidden(True)
 
     def __choose_file(self, index):
         file_path = self.model.filePath(index)
         # print(file_path)
-        if os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
-            self.openfileEvent(file_path)
-        else:
-            QMessageBox.warning(self, u'警告', u'文件类型不支持！')
+        self.openfileEvent(file_path)
 
     def saveasEvent(self):
         r"""
@@ -282,7 +315,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             textedit.closeText()
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
-        # print(self.tab_dict)
 
     def rewardEvent(self):
         r"""
@@ -322,21 +354,57 @@ class Notebook(QMainWindow, Ui_CodePlus):
         else:
             self.close()
     
+    def markdown_handler(self):
+        index = self.tabWidget.currentIndex()
+        _, tabitem = self.__find_tab_by_index(index)
+        current_tab = tabitem.tab
+        current_layout = tabitem.layout
+        current_text = tabitem.text
+        linenum = current_text.document().lineCount()
+        content = ''
+        for i in range(linenum - 1):
+            current_content = current_text.document().findBlockByLineNumber(i).text()
+            current_content += '  \n'
+            content += current_content
+        for i in reversed(range(current_layout.count())): 
+            current_layout.takeAt(i).widget().deleteLater()
+        markdown_tab = QtWidgets.QTabWidget(current_tab)
+        markdown_tab.setTabPosition(3)
+        # orin = QWidget()
+        md = QWidget()
+        # orin.setObjectName("orin")
+        md.setObjectName("md")
+        # layout_orin = QGridLayout(orin)
+        # text_editor_orin = TextEditorS(name='orin', parent_tabWidget=self.tabWidget, language=language)
+        # layout_orin.addWidget(text_editor_orin, 0, 0, 1, 1)
+        layout_md = QGridLayout(md)
+        text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget, language='txt')
+        text_browser_md = TextEditorS(name='md_md', parent_tabWidget=self.tabWidget, language=self.language)
+        layout_md.addWidget(text_editor_txt, 0, 0, 1, 1)
+        layout_md.addWidget(text_browser_md, 0, 1, 1, 1)
+        # markdown_tab.addTab(orin, 'orin')
+        markdown_tab.addTab(md, 'md')
+        current_layout.addWidget(markdown_tab, 0, 0, 1, 1)
+        tabitem = TabItem(current_tab, current_layout, text_editor_txt, text_browser_md)
+        now_tabname = 'tab_' + str(self.tabidx)
+        self.tab_dict[now_tabname] = tabitem
+        text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
+        text_editor_txt.setPlainText(content)
+        # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
+    
     def show_markdown(self):
-        textedit = self.__get_textEditor()
-        txtcur = textedit.textCursor()
+        current_tab = self.__get_tabitem()
+        textedit = current_tab.text
+        textview = current_tab.textview
         linenum = textedit.document().lineCount()
-        print(linenum)
-        if linenum == 1:
-            return
-        currentBlock = textedit.document().findBlockByLineNumber(linenum-2)
-        blocktext = currentBlock.text()
-        textedit.document().setMarkdown(blocktext)
-        # txtcur.movePosition(QTextCursor.Down)
-        # txtcur.movePosition(QTextCursor.StartOfLine)
-        # textedit.append('\n')
+        content = ''
+        for i in range(linenum - 1):
+            current_content = textedit.document().findBlockByLineNumber(i).text()
+            current_content += '  \n'
+            content += current_content
 
-        #    textedit.setMarkdown(content)
+        textview.document().setMarkdown(content)
+
             
 
 if __name__ == '__main__':
