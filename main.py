@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt
 from textedit import TextEditorS
 import os
 from preference import Preference
+from ide_edit import IDEeditor
 
 
 class TabItem:
@@ -34,13 +35,13 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Code ---------"""
         self.actionAbout_us.triggered.connect(self.aboutusEvent)  # 关于我们
         self.actionExit.triggered.connect(self.closeEvent)  # 退出
-        self.actionPreference.triggered.connect(self.preferenceEvent)# 偏好设置
+        self.actionPreference.triggered.connect(self.showpreferenceEvent)# 偏好设置
         """-------- File ---------"""
         self.actionNew.triggered.connect(self.newfileEvent)  # 新建
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
         self.actionOpen_Folder.triggered.connect(self.openfolderEvent)# 打开文件夹
-        # TODO: Open Folder
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
+        # self.actionSave.setShortcut('Ctrl + S')
         self.actionSave_All.triggered.connect(self.saveallEvent)  # 全部保存
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
         self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
@@ -75,7 +76,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.fontsize = 12
+        self.font_content = {'font': 'Andale Mono', 'size': 12}
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
@@ -94,44 +95,43 @@ class Notebook(QMainWindow, Ui_CodePlus):
     #查找
     def text_find(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            if not self.win_find_is_show:
-                self.win_find_is_show = True
-                self.find_win = Find_Win(self,textedit)
-                self.find_win.show()
-            
+        # if isinstance(textedit, QTextEdit):
+        if not self.win_find_is_show:
+            self.win_find_is_show = True
+            self.find_win = Find_Win(self,textedit)
+            self.find_win.show()
 
 
     def text_undo(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.undo()
+        # if isinstance(textedit, QTextEdit):
+        textedit.undo()
 
     def text_redo(self):
         
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.redo()
+        # if isinstance(textedit, QTextEdit):
+        textedit.redo()
 
     def text_copy(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.copy()
+        # if isinstance(textedit, QTextEdit):
+        textedit.copy()
 
     def text_paste(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.paste()
+        # if isinstance(textedit, QTextEdit):
+        textedit.paste()
 
     def text_cut(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.cut()
+        # if isinstance(textedit, QTextEdit):
+        textedit.cut()
 
     def text_selectAll(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.selectAll()
+        # if isinstance(textedit, QTextEdit):
+        textedit.selectAll()
 
     def selectLanguage(self):
         r"""
@@ -150,6 +150,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         textedit.setlanguage(language)
         self.language = language
         self.lb_lang.setText(self.language)
+
 
     def changeTab(self):
         # super().tabWidget.changeEvent()
@@ -206,9 +207,11 @@ class Notebook(QMainWindow, Ui_CodePlus):
         tab_new.setObjectName(new_tabname)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
-        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget,
-                                  language=language, font_size=self.fontsize)
+        # text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget,
+        #                           language=language, font_size=self.fontsize)
         # text_editor = Editor()
+        text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
+                                language=language, font_content=self.font_content)
         # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
@@ -323,12 +326,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
     def setFontSizeEvent(self):
         r"""
-            改变所有textedit的字体大小
+            改变所有textedit的字体大小和样式
         :return:
         """
         for tabitem in self.tab_dict.values():
             textedit = tabitem.text
-            textedit.setFontSize(self.fontsize)
+            textedit.setFontSize(self.font_content)
 
     def rewardEvent(self):
         r"""
@@ -339,7 +342,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.qrcode_window.show()
         # TODO: 修改字体
 
-    def preferenceEvent(self):
+    def showpreferenceEvent(self):
         r"""
             调出偏好设置
         :return:

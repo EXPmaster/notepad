@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 import os
+from PyQt5.Qsci import QsciScintilla
 
 
 class TextEditorS(QTextEdit):
@@ -20,6 +21,9 @@ class TextEditorS(QTextEdit):
         self.language = language
         self.parent_tabw = parent_tabWidget
         self.setFontSize(font_size)
+        cur = self.textCursor()
+        cur.setPosition()
+
 
     def isModified(self):
         return self.document().isModified()
@@ -34,7 +38,7 @@ class TextEditorS(QTextEdit):
         super().keyPressEvent(e)
         index = self.parent_tabw.currentIndex()
         tabtext = self.parent_tabw.tabText(index)
-        if not tabtext.endswith('*'):
+        if not tabtext.endswith('*') and self.isModified():
             self.parent_tabw.setTabText(index, tabtext + '*')
 
     def setlanguage(self, language):

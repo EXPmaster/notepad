@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QListWidget, \
     QStackedWidget, QHBoxLayout, QFormLayout, QLineEdit, QFontComboBox, \
     QPushButton, QVBoxLayout, QLabel, QMessageBox
 from PyQt5.QtCore import QRegExp
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QFont
 
 
 class Preference(QWidget):
@@ -20,10 +20,12 @@ class Preference(QWidget):
         self.leftlist = QListWidget()
         self.leftlist.insertItem(0, 'Font')
         self.leftlist.insertItem(1, 'Environment')
-        self.fontsize = par.fontsize if par is not None else 12
+        font_family = {'font': 'Andale Mono', 'size': 12}
+        self.font_content = par.font_content if par is not None else font_family
         self.fontpage = QWidget()
         self.environpage = QWidget()
         self.lineEdit = QLineEdit()
+        self.fontbox = QFontComboBox()
 
         self.fontUI()
         self.buttonUI()
@@ -48,13 +50,14 @@ class Preference(QWidget):
     def fontUI(self):
         font_layout = QFormLayout()
         line_edit = self.lineEdit
-        line_edit.setText(str(self.fontsize))
+        line_edit.setText(str(self.font_content['size']))
         line_edit.setClearButtonEnabled(True)
         line_edit.setValidator(QIntValidator(12, 20))
         line_edit.setMaximumWidth(50)
-        fontbox = QFontComboBox()
-        fontbox.setMaximumWidth(200)
-        font_layout.addRow('Font', fontbox)
+        self.fontbox.setFontFilters(self.fontbox.MonospacedFonts)
+        self.fontbox.setMaximumWidth(200)
+        self.fontbox.setCurrentFont(QFont(self.font_content['font']))
+        font_layout.addRow('Font', self.fontbox)
         font_layout.addRow('Size', line_edit)
         self.fontpage.setLayout(font_layout)
 
@@ -75,9 +78,11 @@ class Preference(QWidget):
 
     def __ack_btn_event(self):
         fontsize = int(self.lineEdit.text())
+        font = self.fontbox.currentFont().toString().split(',')[0]
+        font_family = {'font': font, 'size': fontsize}
         if fontsize in range(12, 31):
-            self.fontsize = fontsize
-            self.par.fontsize = fontsize
+            self.font_content = font_family
+            self.par.font_content = font_family
             self.par.setFontSizeEvent()
             self.close()
         else:
