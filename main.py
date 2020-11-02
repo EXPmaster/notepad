@@ -13,6 +13,7 @@ import os
 from preference import Preference
 from ide_edit import IDEeditor
 from PyQt5.QtGui import QPixmap, QIcon
+import pickle
 
 
 class TabItem:
@@ -75,13 +76,23 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.gridLayout_1.addWidget(self.dirtree, 0, 0)
         self.gridLayout_1.setColumnStretch(0, 2)
         self.gridLayout_1.setColumnStretch(1, 5)
+        """-------- Run Event ---------"""
+        self.dock_win = QtWidgets.QDockWidget()
+        self.dock_tab = QtWidgets.QTabWidget()
+        self.dock_win.setWidget(self.dock_tab)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_win)
+        self.dock_tab.setTabPosition(QTabWidget.South)
+        self.teridx = 0
+        self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
+        self.dock_tab.setTabsClosable(True)
+        self.run_event = False
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
         self.font_content = {'font': 'Andale Mono', 'size': 12}
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
-        # self.language = 'txt'  # 当前语言
+        self.language = 'txt'  # 当前语言
         # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
         self.actionRun.triggered.connect(self.new_run_event)
         """所有语言类型为：
@@ -92,17 +103,31 @@ class Notebook(QMainWindow, Ui_CodePlus):
             """
 
         """-------- 初始执行的操作 ---------"""
-        self.__create_tab()  # 初始创建一个tab
+        self.openIDEevent()
 
-        self.dock_win = QtWidgets.QDockWidget()
-        self.dock_tab = QtWidgets.QTabWidget()
-        self.dock_win.setWidget(self.dock_tab)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_win)
-        self.dock_tab.setTabPosition(QTabWidget.South)
-        self.teridx = 0
-        self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
-        self.dock_tab.setTabsClosable(True)
-        self.run_event = False
+    def openIDEevent(self):
+        tmp_path = './.tmp'
+
+        def listdir(path):
+            for item in os.listdir(path):
+                if not item.startswith('.') and not item.endswith('.pkl'):
+                    yield item
+        if not os.path.exists(tmp_path):
+            self.__create_tab()  # 初始创建一个tab
+            self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
+        else:
+            """读取缓存的文件"""
+            with open(os.path.join(tmp_path, 'mapping.pkl'), 'rb') as f:
+                mapping = pickle.load(f)
+            tmp_files = listdir(tmp_path)
+            for i, file in enumerate(tmp_files):
+                file_path = os.path.join(tmp_path, file)
+                origin_path = mapping[file]
+                self.openfileEvent(file_path, origin_path)
+                if i == 0:
+                    self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
+
+        self.lb_lang.setText(self.language)
 
     def new_run_event(self):
         if not self.run_event:
@@ -226,7 +251,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.language = language
         self.lb_lang.setText(self.language)
 
-
     def changeTab(self):
         # super().tabWidget.changeEvent()
         self.language = self.cur_language()
@@ -296,7 +320,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         index = self.tabWidget.count() - 1
         self.tabWidget.setCurrentIndex(index)
 
-    def openfileEvent(self, file_path=None):
+    def openfileEvent(self, file_path=None, mapping=None):
         r"""
             打开文件事件函数
         :return: None
@@ -324,7 +348,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.__create_tab(name=file_fullname)
             index = self.tabWidget.count() - 1
             textedit = self.__get_textEditor(index=index)
-            textedit.load(file_path)
+            textedit.load(file_path, mapping)
 
     def openfolderEvent(self):
         folder_path = QFileDialog.getExistingDirectory(self, '请选择打开的文件夹')
@@ -415,7 +439,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """
         self.qrcode_window = Reward()
         self.qrcode_window.show()
-        # TODO: 修改字体
 
     def showpreferenceEvent(self):
         r"""
@@ -439,12 +462,41 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :param event:
         :return: None
         """
+        # 缓存文件的文件夹
+        tmp_path = './.tmp'
+        if os.path.exists(tmp_path):
+            os.system(f'rm -r {tmp_path}')
+
+        if len(self.tab_dict):
+            os.mkdir(tmp_path)
         check_quit = True
+        increment = 1
+        mapping = {}  # 地址映射表
         for tabitem in self.tab_dict.values():
+            # 缓存当前未关闭的页面
             textedit = tabitem.text
+            if textedit.filepath is None:
+                tmp_filename = f'Plain_{increment}.' + self.language
+                mapping[tmp_filename] = None
+                tmp_filepath = os.path.join(tmp_path, tmp_filename)
+                increment += 1
+            else:
+                _, tmp_filename = os.path.split(textedit.filepath)
+                mapping[tmp_filename] = textedit.filepath
+                tmp_filepath = os.path.join(tmp_path, tmp_filename)
+            textedit.save(tmp_filepath)
+
             if textedit.isModified():
                 check_quit = False
-                break
+
+        # 保存mapping
+        print(mapping)
+        try:
+            with open(os.path.join(tmp_path, 'mapping.pkl'), 'wb') as f:
+                pickle.dump(mapping, f)
+        except:
+            pass
+
         if not check_quit:
             ret_code = QMessageBox.information(self, '提示', '存在文件未保存，确定退出？',
                                                    QMessageBox.Yes | QMessageBox.No)

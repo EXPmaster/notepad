@@ -42,8 +42,10 @@ class IDEeditor(QsciScintilla):
         self.setAutoIndent(True)
         self.setTabWidth(4)
 
-        self.lxr = ...
-        self.api = ...
+        self.lxr = None
+        self.api = None
+        self.setAutoCompletionThreshold(1)
+        self.setAutoCompletionSource(self.AcsAll)
 
     def keyPressEvent(self, e):
         r"""
@@ -88,6 +90,7 @@ class IDEeditor(QsciScintilla):
             self.lxr = QsciLexerCPP()
             self.lxr.setFont(lexer_font)
             self.setLexer(self.lxr)
+            self.__cCompletion()
         elif language == 'md':
             self.lxr = QsciLexerMarkdown()
             self.lxr.setFont(lexer_font)
@@ -101,7 +104,20 @@ class IDEeditor(QsciScintilla):
             python 自动补全
         :return:
         """
-        # self.api = QsciAPIs(self.lxr)
+        python_keywords = ["False", "None", "True", "and", "as", "assert", "break", "class", "continue", "def",
+                           "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
+                           "is", "isinstance", "print", "len", "range", "enumerate", "input", "int", "float", "bool",
+                           "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with",
+                           "yield", "next", "iter"]
+        try:
+            if isinstance(self.api, QsciAPIs):
+                self.api.clear()
+        except:
+            pass
+        self.api = QsciAPIs(self.lxr)
+        for kw in python_keywords:
+            self.api.add(kw)
+            self.api.prepare()
         # self.api.add('class')
         # import PyQt5
         # pyqt_path = os.path.dirname(PyQt5.__file__)
@@ -109,8 +125,25 @@ class IDEeditor(QsciScintilla):
 
         # self.api.prepare()
         # print('OK')
-        self.setAutoCompletionThreshold(1)
-        self.setAutoCompletionSource(self.AcsAPIs)
+
+    def __cCompletion(self):
+        r"""
+            C自动补全
+        :return:
+        """
+        c_keywords = ["char", "double", "enum", "float", "int", "long", "short", "signed", "struct",
+                      "union", "unsigned", "void", "for", "do", "while", "break", "continue", "if",
+                      "else", "goto", "switch", "case", "default", "return", "auto", "extern", "register",
+                      "static", "const", "sizeof", "typedef", "volatile"]
+        try:
+            if isinstance(self.api, QsciAPIs):
+                self.api.clear()
+        except:
+            pass
+        self.api = QsciAPIs(self.lxr)
+        for kw in c_keywords:
+            self.api.add(kw)
+            self.api.prepare()
 
     def setFontSize(self, font_content):
         r"""
@@ -153,7 +186,7 @@ class IDEeditor(QsciScintilla):
         # 取消显示横向bar
         # self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
 
-    def load(self, file_path):
+    def load(self, file_path, mapping=None):
         r"""
         读取文件
         :param file_path: 文件路径
@@ -165,7 +198,10 @@ class IDEeditor(QsciScintilla):
             with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f.readlines():
                     text += line
-                self.filepath = file_path
+                if mapping is not None or file_path.startswith('./.tmp'):
+                    self.filepath = mapping
+                else:
+                    self.filepath = file_path
             # self.setPlainText(text)
             self.setText(text)
             # 设置当前文件名
@@ -180,13 +216,17 @@ class IDEeditor(QsciScintilla):
             """弹出窗口，提示文件不存在"""
             QMessageBox.warning(self, 'Warning', 'Text does not exist!')
 
-    def save(self):
+    def save(self, file_path=None):
         r"""
         保存
         :return:
         """
-        if self.filepath is not None:
-            with open(self.filepath, 'w', encoding='utf-8') as f:
+        if self.filepath is not None or file_path:
+            if file_path:
+                save_path = file_path
+            else:
+                save_path = self.filepath
+            with open(save_path, 'w', encoding='utf-8') as f:
                 text = self.text()
                 f.writelines(text)
             # self.document().setModified(False)
