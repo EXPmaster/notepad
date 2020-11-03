@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win

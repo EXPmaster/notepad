@@ -196,5 +196,10 @@ class Find_Win(QMainWindow,Ui_Find):
     def win_close(self):
         self.close()
 
+    if __name__ =="__main__":
+        tcf = QTextCharFormat()
+        print(type(tcf))
+
+
     
 

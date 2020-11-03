@@ -27,6 +27,11 @@ class IDEeditor(QsciScintilla):
         self.parent_tabw = parent_tabWidget
         self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
         self.setFontSize(font_content)
+        #self.SendScintilla()
+        #self.replaceSelectedText()
+
+
+        
 
         # IDE settings
         # Brace matching: enable for a brace immediately before or after

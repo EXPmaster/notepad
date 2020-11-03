@@ -14,16 +14,12 @@ class Find_Win(QMainWindow, Ui_Find):
         self.text_rep_with = ''
         self.start = 0
         self.is_mark = False
-
         self.text_content = self.textedit.text()
         self.current_count = 1
-        # self.cur = self.textedit.textCursor()
-        # self.cur = self.textedit.cursor()
         self.lineEdit_find_find.textChanged.connect(self.target_changed)
         self.lineEdit_mark_target.textChanged.connect(self.target_changed)
         self.lineEdit_replace_target.textChanged.connect(self.target_changed)
         self.textedit.textChanged.connect(self.content_changed)
-
         self.pushButton_find_cancel.clicked.connect(self.win_close)
         self.pushButton_replace_cancel.clicked.connect(self.win_close)
         self.pushButton_mark_cancel.clicked.connect(self.win_close)
@@ -32,8 +28,8 @@ class Find_Win(QMainWindow, Ui_Find):
         self.pushButton_replace_next.clicked.connect(self.replace_find)
         self.pushButton_replace_replace.clicked.connect(self.replace_one)
         self.pushButton_replace_all.clicked.connect(self.replace_all)
-        self.pushButton_mark_all.clicked.connect(self.mark_all)
-        self.pushButton_mark_clear.clicked.connect(self.clear_all)
+        #self.pushButton_mark_all.clicked.connect(self.mark_all)
+        #self.pushButton_mark_clear.clicked.connect(self.clear_all)
 
     """-----目标搜索框文本改变--------"""
 
@@ -73,6 +69,20 @@ class Find_Win(QMainWindow, Ui_Find):
     def replace_find(self):
         self.find(self.textBrowser_replace)
 
+    """----字符串查找返回索引到代码编辑器编辑器坐标的转化----"""
+    def index2coor(self,index):
+        count=0
+        row_num=0
+        col_num=0
+        while count < index:
+            if self.text_content[count] == '\n':
+                row_num += 1
+                col_num = 0
+            else:
+                col_num += 1
+            count+=1
+        return (row_num,col_num)
+
     """----find操作----"""
 
     def find(self, parent_Browser):
@@ -80,7 +90,11 @@ class Find_Win(QMainWindow, Ui_Find):
             parent_Browser.setText("find:Unable to find text {}".format(self.text_target))
         elif self.current_count <= self.total_count:
             self.start = self.text_content.find(self.text_target, self.start)
-            self.select(self.start, len(self.text_target))
+            #print(self.start)
+            row_num1,col_num1 = self.index2coor(self.start)
+            row_num2,col_num2 = self.index2coor(self.start + len(self.text_target))
+            #print(row_num1,col_num1,row_num2,col_num2)
+            self.select(len(self.text_target))
             parent_Browser.setText("find:{}/{} match".format(str(self.current_count), str(self.total_count)))
             self.current_count += 1
             self.start += len(self.text_target)
@@ -93,8 +107,10 @@ class Find_Win(QMainWindow, Ui_Find):
     def replace_one(self):
         # tc.selectedText()
         """如果没有选中，第一个replace先执行find选中"""
-        if self.selectedText() == '':
+        if self.textedit.selectedText() == '':
             self.start = self.text_content.find(self.text_target, 0)
+            row_num1,col_num1 = self.index2coor(self.start)
+            row_num2,col_num2 = self.index2coor(self.start + len(self.text_target))
         else:
             self.replace()
         self.curse_move()
@@ -102,28 +118,21 @@ class Find_Win(QMainWindow, Ui_Find):
     """替换光标选中的字符串"""
 
     def replace(self):
-        self.textedit.removeSelectedText()
-        tcf = QTextCharFormat()
         self.text_rep_with = self.lineEdit_replace_with.text()
-        self.insertText(self.text_rep_with, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.textedit.replaceSelectedText(self.text_rep_with)
+        self.start = self.text_content.find(self.text_target, self.start + len(self.text_rep_with))
 
     """标记光标选中的字符串"""
 
     def mark(self):
-        self.textedit.removeSelectedText()
-        tcf = QTextCharFormat()
-        tcf.setForeground(QColor('red'))
-        self.textedit.insertText(self.text_target, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.textedit.setSelectionForegroundColor(QColor('red'))
+        self.start = self.text_content.find(self.text_target, self.start+len(self.text_target))
 
     """取消标记光标选中的字符串"""
 
     def clear(self):
-        self.textedit.removeSelectedText()
-        tcf = QTextCharFormat()
-        self.textedit.insertText(self.text_target, tcf)
-        self.start = self.text_content.find(self.text_target, self.textedit.getCursorPosition())
+        self.textedit.resetSelectionForegroundColor()
+        self.start = self.text_content.find(self.text_target, self.start+len(self.text_target))
 
     """----curse移动选中指定位置start目标文本----"""
 
@@ -131,12 +140,12 @@ class Find_Win(QMainWindow, Ui_Find):
         if self.start == -1:
             self.textBrowser_replace.setText("Remove to the bottom or there are no matches")
         else:
-            self.select(self.start, len(self.text_target))
+            self.select(len(self.text_target))
 
-    def select(self, start, length):
-        self.textedit.setCursorPosition(start, start + length)
-        # self.cur.setPosition(start + length, QTextCursor.KeepAnchor)
-        # self.textedit.setTextCursor(self.cur)
+    def select(self,length):
+        row_num1,col_num1 = self.index2coor(self.start)
+        row_num2,col_num2 = self.index2coor(self.start + length)
+        self.textedit.setSelection(row_num1,col_num1,row_num2,col_num2)
 
     """----find tap页count操作----"""
 
@@ -155,7 +164,7 @@ class Find_Win(QMainWindow, Ui_Find):
             self.start = self.text_content.find(self.text_target, start)
             start = self.start + len(self.text_rep_with)
             print("self.start" + str(self.start))
-            self.select(self.start, len(self.text_target))
+            self.select(len(self.text_target))
             self.replace()
             current_count += 1
         self.textBrowser_replace.setText('replace all: {} matches has been replaced'.format(str(current_count - 1)))
@@ -170,7 +179,7 @@ class Find_Win(QMainWindow, Ui_Find):
             while current_count <= total_count:
                 self.start = self.text_content.find(self.text_target, start)
                 start = self.start + len(self.text_target)
-                self.select(self.start, len(self.text_target))
+                self.select(len(self.text_target))
                 self.mark()
                 current_count += 1
             self.is_mark = True
@@ -190,7 +199,7 @@ class Find_Win(QMainWindow, Ui_Find):
                 self.start = self.text_content.find(self.text_target, start)
                 start = self.start + len(self.text_target)
                 print("self.start" + str(self.start))
-                self.select(self.start, len(self.text_target))
+                self.select(len(self.text_target))
                 self.clear()
                 current_count += 1
             self.is_mark = False
