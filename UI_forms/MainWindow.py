@@ -15,12 +15,13 @@ class Ui_CodePlus(object):
     def setupUi(self, CodePlus):
         CodePlus.setObjectName("CodePlus")
         CodePlus.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(CodePlus)
+        # self.centralwidget = QtWidgets.QWidget(CodePlus)
+        self.centralwidget = QtWidgets.QSplitter(CodePlus)
         self.centralwidget.setObjectName("centralwidget")
 
         self.gridLayout_1 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_1.setObjectName("gridLayout_1")
-
+        self.dirtree = QtWidgets.QTreeView(self.centralwidget)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.North)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -30,7 +31,13 @@ class Ui_CodePlus(object):
         self.tabWidget.setMovable(True)
         self.tabWidget.setTabBarAutoHide(False)
         self.tabWidget.setObjectName("tabWidget")
+        """-------- Dir Tree ---------"""
 
+        self.dirtree.setObjectName('dirtree')
+        self.gridLayout_1.addWidget(self.dirtree, 0, 0)
+
+        self.gridLayout_1.setColumnStretch(0, 2)
+        self.gridLayout_1.setColumnStretch(1, 5)
         self.gridLayout_1.addWidget(self.tabWidget, 0, 1, 2, 1)
 
         CodePlus.setCentralWidget(self.centralwidget)

@@ -73,11 +73,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.statusbar.addWidget(self.lb_margin, 4)
         self.statusbar.addWidget(self.lb_lang, 1)
         """-------- Dir Tree ---------"""
-        self.dirtree = QtWidgets.QTreeView()
-        self.dirtree.setObjectName('dirtree')
-        self.gridLayout_1.addWidget(self.dirtree, 0, 0)
-        self.gridLayout_1.setColumnStretch(0, 2)
-        self.gridLayout_1.setColumnStretch(1, 5)
+        """ view from source"""
         """-------- Run Event ---------"""
         self.dock_win = QtWidgets.QDockWidget()
         self.dock_tab = QtWidgets.QTabWidget()
