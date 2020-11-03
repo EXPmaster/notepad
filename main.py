@@ -13,7 +13,7 @@ from textedit import TextEditorS
 import os
 from preference import Preference
 from ide_edit import IDEeditor
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QColor
 import pickle
 import shutil
 import faulthandler
@@ -329,7 +329,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
                                 language=language, font_content=self.font_content)
         # text_editor.textChange.connect(self.__handle_textChange)
-
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
@@ -613,11 +612,11 @@ class Notebook(QMainWindow, Ui_CodePlus):
             
 
 if __name__ == '__main__':
-    # with open("style.qss") as f:
-    #     qss = f.read()
+    with open("style.qss") as f:
+        qss = f.read()
     app = QApplication(sys.argv)
     #style_transfer()
-    # app.setStyleSheet(qss)
+    app.setStyleSheet(qss)
     MainWindow = Notebook()
     MainWindow.show()
     sys.exit(app.exec_())
