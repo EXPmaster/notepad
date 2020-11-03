@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win
@@ -15,6 +16,7 @@ from ide_edit import IDEeditor
 from PyQt5.QtGui import QPixmap, QIcon
 import pickle
 import shutil
+from textedit import  RunBrowser
 
 
 class TabItem:
@@ -133,8 +135,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
     def new_run_event(self):
         if not self.run_event:
-            self.run_browser = QtWidgets.QTextBrowser()
-            self.run_browser.ensureCursorVisible()
+            self.run_browser = RunBrowser()
+            self.run_browser.exitSignal.connect(lambda: self.actionRun.setDisabled(False))
             pix = QPixmap('./imgs/run.jpg')
             icon = QIcon()
             icon.addPixmap(pix)
@@ -142,39 +144,44 @@ class Notebook(QMainWindow, Ui_CodePlus):
             index = self.dock_tab.count() - 1
             self.dock_tab.setTabIcon(index, icon)
             self.dock_tab.setCurrentIndex(index)
-        self.run_event = True
+            self.run_event = True
         cur_path = self.__get_textEditor().filepath
         if cur_path:
             if os.path.splitext(cur_path)[-1] == '.py':
-                self.run_browser.clear()
-                cmd = 'python ' + cur_path
-                self.run_browser.append(cmd)
-                self.run_process = QProcess()
-                self.run_process.readyReadStandardOutput.connect(self.show_process)
-                self.run_process.readyReadStandardError.connect(self.show_error)
-                self.run_process.finished.connect(self.run_exit)
-                self.run_process.start(cmd)
+                self.run_browser.start_process(cur_path)
                 self.actionRun.setDisabled(True)
 
-    def run_exit(self, exitcode):
-        self.run_browser.append('\nProcess finished with exit code ' + str(exitcode))
-        self.run_browser.moveCursor(self.run_browser.textCursor().End)
-        self.actionRun.setDisabled(False)
+    #             self.run_browser.clear()
+    #             cmd = 'python ' + cur_path
+    #             self.run_browser.append(cmd)
+    #             self.run_process = QProcess()
+    #             self.run_process.readyReadStandardOutput.connect(self.show_process)
+    #             self.run_process.readyReadStandardError.connect(self.show_error)
+    #
+    #             self.run_process.finished.connect(self.run_exit)
+    #             self.run_process.start(cmd)
+    #             self.actionRun.setDisabled(True)
+    #             self.run_browser.start = True
+    #
+    #
+    # def run_exit(self, exitcode):
+    #     self.run_browser.append('\nProcess finished with exit code ' + str(exitcode))
+    #     self.run_browser.moveCursor(self.run_browser.textCursor().End)
+    #     self.actionRun.setDisabled(False)
+    #     self.run_browser.start = False
+    #
+    # def show_error(self):
+    #     string = self.run_process.readAllStandardError()
+    #     print(string)
+    #     s = str(string, encoding='utf-8')
+    #     self.run_browser.append('<font color = red>' + s)
+    #
+    # def show_process(self):
+    #     string = self.run_process.readAllStandardOutput()
+    #     s = str(string, encoding='utf-8')
+    #     self.run_browser.append(s[:-2])
+    #     print(self.run_process.isWritable())
 
-    def keyPressEvent(self, e):
-        super().keyPressEvent(e)
-        # print(e.key())
-
-    def show_error(self):
-        string = self.run_process.readAllStandardError()
-        print(string)
-        s = str(string, encoding='utf-8')
-        self.run_browser.append('<font color = red>' + s)
-
-    def show_process(self):
-        string = self.run_process.readAllStandardOutput()
-        s = str(string, encoding='utf-8')
-        self.run_browser.append(s[:-2])
 
     # def new_terminal_event(self):
     #     from threading import Thread
@@ -274,6 +281,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :param index: CurrentIndex
         :return: (str, object) 当前Tab名，TabItem 对象
         """
+
         cur_tab_name = self.tabWidget.widget(index).objectName()
         return cur_tab_name, self.tab_dict[cur_tab_name]
 
@@ -286,7 +294,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             index = self.tabWidget.currentIndex()
         _, tabitem = self.__find_tab_by_index(index)
         return tabitem.text
-    
+
     def __get_tabitem(self, index=None):
         r"""
             获取当前tab
@@ -338,6 +346,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabWidget.setCurrentIndex(index)
         if language == 'md':
             self.markdown_handler()
+        self.actionRun.setDisabled(False)
 
     def openfileEvent(self, file_path=None, mapping=None):
         r"""
@@ -451,6 +460,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
             textedit.closeText()
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
+        if self.tabWidget.count() == 0:
+            self.actionRun.setDisabled(True)
 
     def setFontSizeEvent(self):
         r"""
@@ -550,7 +561,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     current_content = current_text.document().findBlockByLineNumber(i).text()
         #     current_content += '  \n'
         #     content += current_content
-        # for i in reversed(range(current_layout.count())): 
+        # for i in reversed(range(current_layout.count())):
         #     current_layout.takeAt(i).widget().deleteLater()
         # markdown_tab = QtWidgets.QTabWidget(current_tab)
         # markdown_tab.setTabPosition(3)
@@ -595,7 +606,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             tabitem = TabItem(current_tab, current_layout, current_text)
             now_tabname = 'tab_' + str(self.tabidx)
             self.tab_dict[now_tabname] = tabitem
-        
+
     def show_markdown(self):
         current_tab = self.__get_tabitem()
         textedit = current_tab.text
@@ -612,7 +623,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     content += current_content
 
 #style_transfer
-            
+
 
 if __name__ == '__main__':
     # with open("style.qss") as f:
