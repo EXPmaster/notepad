@@ -16,6 +16,8 @@ class Find_Win(QMainWindow, Ui_Find):
         self.is_mark = False
         self.text_content = self.textedit.text()
         self.current_count = 1
+        #self.cur = QTextEdit.textCursor(self.textedit)
+        # self.cur = self.textedit.cursor()
         self.lineEdit_find_find.textChanged.connect(self.target_changed)
         self.lineEdit_mark_target.textChanged.connect(self.target_changed)
         self.lineEdit_replace_target.textChanged.connect(self.target_changed)
