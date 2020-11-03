@@ -14,6 +14,7 @@ from preference import Preference
 from ide_edit import IDEeditor
 from PyQt5.QtGui import QPixmap, QIcon
 import pickle
+import shutil
 
 
 class TabItem:
@@ -378,7 +379,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         if status:
             """保存成功，设置tab名"""
             index = self.tabWidget.currentIndex()
-            self.tabWidget.setTabText(index, status)
+            textedit = self.__get_textEditor(index)
+            self.language = textedit.language
+            self.lb_lang.setText(self.language)
 
     def savefileEvent(self):
         r"""
@@ -386,7 +389,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :return:
         """
         textedit = self.__get_textEditor()
-        textedit.save()
+        text_saveas = textedit.save()
+        if text_saveas:
+            self.language = textedit.language
+            self.lb_lang.setText(self.language)
 
     def saveallEvent(self):
         r"""
@@ -395,7 +401,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """
         for tabitem in self.tab_dict.values():
             textedit = tabitem.text
-            textedit.save()
+            text_saveas = textedit.save()
+            if text_saveas:
+                self.language = textedit.language
+                self.lb_lang.setText(self.language)
 
     def closefileEvent(self, index):
         r"""
@@ -465,7 +474,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # 缓存文件的文件夹
         tmp_path = './.tmp'
         if os.path.exists(tmp_path):
-            os.system(f'rm -r {tmp_path}')
+            # os.system(f'rm -r {tmp_path}')
+            shutil.rmtree(tmp_path)
 
         if len(self.tab_dict):
             os.mkdir(tmp_path)
@@ -484,13 +494,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 _, tmp_filename = os.path.split(textedit.filepath)
                 mapping[tmp_filename] = textedit.filepath
                 tmp_filepath = os.path.join(tmp_path, tmp_filename)
-            textedit.save(tmp_filepath)
 
             if textedit.isModified():
                 check_quit = False
+            textedit.save(tmp_filepath)
 
         # 保存mapping
-        print(mapping)
         try:
             with open(os.path.join(tmp_path, 'mapping.pkl'), 'wb') as f:
                 pickle.dump(mapping, f)

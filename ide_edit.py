@@ -46,6 +46,10 @@ class IDEeditor(QsciScintilla):
         self.api = None
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionSource(self.AcsAll)
+        self.cursorPositionChanged.connect(self.testEvent)
+
+    def testEvent(self):
+        print(self.lines())
 
     def keyPressEvent(self, e):
         r"""
@@ -236,8 +240,10 @@ class IDEeditor(QsciScintilla):
             if tabtext.endswith('*'):
                 self.parent_tabw.setTabText(index, tabtext[:-1])
             self.setModified(False)
+            return False
         else:
             self.saveas()
+            return True
 
     def saveas(self):
         r"""
@@ -261,7 +267,9 @@ class IDEeditor(QsciScintilla):
             _, prefix = os.path.splitext(tmpfilename)
             self.setlanguage(prefix[1:])
             self.setModified(False)
-            return tmpfilename
+            index = self.parent_tabw.currentIndex()
+            self.parent_tabw.setTabText(index, tmpfilename)
+            return True
         else:
             # QMessageBox.warning(self, 'Warning', 'File name should not be empty')
             return False
