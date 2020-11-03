@@ -29,6 +29,7 @@ class IDEeditor(QsciScintilla):
         self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
         self.setFontSize(font_content)
 
+
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
         # the current position
@@ -61,10 +62,10 @@ class IDEeditor(QsciScintilla):
         super().keyPressEvent(e)
         index = self.parent_tabw.currentIndex()
         tabtext = self.parent_tabw.tabText(index)
-        if not tabtext.endswith('*') and self.isModified():
-            self.parent_tabw.setTabText(index, tabtext + '*')
-        if not self.isModified() and tabtext.endswith('*'):
-            self.parent_tabw.setTabText(index, tabtext[:-1])
+        if not tabtext.startswith('*') and self.isModified():
+            self.parent_tabw.setTabText(index, '*' + tabtext)
+        if not self.isModified() and tabtext.startswith('*'):
+            self.parent_tabw.setTabText(index, tabtext[1:])
 
     def setlanguage(self, language):
         r"""
@@ -214,8 +215,11 @@ class IDEeditor(QsciScintilla):
             # 设置语言
             _, prefix = os.path.splitext(tmpfilename)
             self.setlanguage(prefix[1:])
-            # 清除改变
-            self.setModified(False)
+            # 是否清除改变
+            if tmpfilename.startswith('*'):
+                self.setModified(True)
+            else:
+                self.setModified(False)
         except FileNotFoundError:
             """弹出窗口，提示文件不存在"""
             QMessageBox.warning(self, 'Warning', 'Text does not exist!')
@@ -237,8 +241,8 @@ class IDEeditor(QsciScintilla):
             # 把 '*' 去掉
             index = self.parent_tabw.currentIndex()
             tabtext = self.parent_tabw.tabText(index)
-            if tabtext.endswith('*'):
-                self.parent_tabw.setTabText(index, tabtext[:-1])
+            if tabtext.startswith('*'):
+                self.parent_tabw.setTabText(index, tabtext[1:])
             self.setModified(False)
             return False
         else:

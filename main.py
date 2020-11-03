@@ -113,7 +113,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             for item in os.listdir(path):
                 if not item.startswith('.') and not item.endswith('.pkl'):
                     yield item
-        if not os.path.exists(tmp_path):
+        if not os.path.exists(tmp_path) or not os.path.exists(os.path.join(tmp_path, 'mapping.pkl')):
             self.__create_tab()  # 初始创建一个tab
             self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
         else:
@@ -122,7 +122,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 mapping = pickle.load(f)
             tmp_files = listdir(tmp_path)
             for i, file in enumerate(tmp_files):
+
                 file_path = os.path.join(tmp_path, file)
+                if file.startswith('*'):
+                    file = file[1:]
                 origin_path = mapping[file]
                 self.openfileEvent(file_path, origin_path)
                 if i == 0:
@@ -479,7 +482,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         if len(self.tab_dict):
             os.mkdir(tmp_path)
-        check_quit = True
+        # check_quit = True
         increment = 1
         mapping = {}  # 地址映射表
         for tabitem in self.tab_dict.values():
@@ -496,7 +499,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 tmp_filepath = os.path.join(tmp_path, tmp_filename)
 
             if textedit.isModified():
-                check_quit = False
+                # check_quit = False
+                tmp_filepath = os.path.join(tmp_path, '*' + tmp_filename)
             textedit.save(tmp_filepath)
 
         # 保存mapping
@@ -506,15 +510,15 @@ class Notebook(QMainWindow, Ui_CodePlus):
         except:
             pass
 
-        if not check_quit:
-            ret_code = QMessageBox.information(self, '提示', '存在文件未保存，确定退出？',
-                                                   QMessageBox.Yes | QMessageBox.No)
-            if ret_code == QMessageBox.Yes:
-                self.close()
-            else:
-                event.ignore()
-        else:
-            self.close()
+        # if not check_quit:
+        #     ret_code = QMessageBox.information(self, '提示', '存在文件未保存，确定退出？',
+        #                                            QMessageBox.Yes | QMessageBox.No)
+        #     if ret_code == QMessageBox.Yes:
+        #         self.close()
+        #     else:
+        #         event.ignore()
+        # else:
+        self.close()
 
 
 if __name__ == '__main__':
