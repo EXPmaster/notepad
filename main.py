@@ -601,16 +601,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
         current_tab = self.__get_tabitem()
         textedit = current_tab.text
         textview = current_tab.textview
-        content = textedit.text()
-        content = content.replace('\r\n', '  \n')
+        if textview != None:
+            content = textedit.text()
+            content = content.replace('\r\n', '  \n')
+            textview.document().setMarkdown(content)
         # linenum = textedit.document().lineCount()
         # content = ''
         # for i in range(linenum - 1):
         #     current_content = textedit.document().findBlockByLineNumber(i).text()
         #     current_content += '  \n'
         #     content += current_content
-
-        textview.document().setMarkdown(content)
 
 #style_transfer
             
