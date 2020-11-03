@@ -257,6 +257,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.lb_lang.setText(self.language)
         if signal_src == 'Markdown':
             self.markdown_handler()
+        else:
+            self.normalmode_handler()
 
     def changeTab(self):
         # super().tabWidget.changeEvent()
@@ -329,6 +331,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
                                 language=language, font_content=self.font_content)
         # text_editor.textChange.connect(self.__handle_textChange)
+        text_editor.cursor
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
@@ -535,7 +538,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # else:
         self.close()
 
-    
     def markdown_handler(self):
         index = self.tabWidget.currentIndex()
         _, tabitem = self.__find_tab_by_index(index)
@@ -581,6 +583,18 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
         # text_editor_txt.setPlainText(content)
         # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
+
+    def normalmode_handler(self):
+        index = self.tabWidget.currentIndex()
+        _, tabitem = self.__find_tab_by_index(index)
+        current_tab = tabitem.tab
+        current_layout = tabitem.layout
+        current_text = tabitem.text
+        if tabitem.textview != None:
+            current_layout.itemAt(1).widget().close()
+            tabitem = TabItem(current_tab, current_layout, current_text)
+            now_tabname = 'tab_' + str(self.tabidx)
+            self.tab_dict[now_tabname] = tabitem
         
     def show_markdown(self):
         current_tab = self.__get_tabitem()
