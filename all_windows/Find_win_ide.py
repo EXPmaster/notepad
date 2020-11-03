@@ -92,10 +92,6 @@ class Find_Win(QMainWindow, Ui_Find):
             parent_Browser.setText("find:Unable to find text {}".format(self.text_target))
         elif self.current_count <= self.total_count:
             self.start = self.text_content.find(self.text_target, self.start)
-            #print(self.start)
-            row_num1,col_num1 = self.index2coor(self.start)
-            row_num2,col_num2 = self.index2coor(self.start + len(self.text_target))
-            #print(row_num1,col_num1,row_num2,col_num2)
             self.select(len(self.text_target))
             parent_Browser.setText("find:{}/{} match".format(str(self.current_count), str(self.total_count)))
             self.current_count += 1
