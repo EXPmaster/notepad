@@ -37,6 +37,7 @@ class IDEeditor(QsciScintilla):
 
         
 
+
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
         # the current position
