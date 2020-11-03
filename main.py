@@ -2,14 +2,19 @@
 
 import sys
 from UI_forms import Ui_CodePlus
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTextBrowser
+from all_windows import Find_Win
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
+    QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QTextCursor
 from reward_handler import Reward
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QProcess
 from textedit import TextEditorS
 from code_edit import SimplePythonEditor
 import os
+from preference import Preference
+from ide_edit import IDEeditor
+from PyQt5.QtGui import QPixmap, QIcon
 
 class TabItem:
     r"""
@@ -34,12 +39,13 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Code ---------"""
         self.actionAbout_us.triggered.connect(self.aboutusEvent)  # 关于我们
         self.actionExit.triggered.connect(self.closeEvent)  # 退出
+        self.actionPreference.triggered.connect(self.showpreferenceEvent)# 偏好设置
         """-------- File ---------"""
         self.actionNew.triggered.connect(self.newfileEvent)  # 新建
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
         self.actionOpen_Folder.triggered.connect(self.openfolderEvent)# 打开文件夹
-        # TODO: Open Folder
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
+        # self.actionSave.setShortcut('Ctrl + S')
         self.actionSave_All.triggered.connect(self.saveallEvent)  # 全部保存
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
         self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
@@ -50,7 +56,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionCut.triggered.connect(self.text_cut)  # 剪切
         self.actionCopy.triggered.connect(self.text_copy)  # 复制
         self.actionPast.triggered.connect(self.text_paste)  # 粘贴
-        # # TODO: Find
+        self.actionFind.triggered.connect(self.text_find)  # 查找
+        self.win_find_is_show = False
         self.actionSelect_All.triggered.connect(self.text_selectAll)  # 全选
         """-------- Language ---------"""
         self.actionPlain_Text.triggered.connect(self.selectLanguage)
@@ -73,9 +80,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
+        self.font_content = {'font': 'Andale Mono', 'size': 12}
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
-        self.language = 'txt'  # 当前语言
+        # self.language = 'txt'  # 当前语言
+        # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        self.actionRun.triggered.connect(self.new_run_event)
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -85,38 +95,122 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         """-------- 初始执行的操作 ---------"""
         self.__create_tab()  # 初始创建一个tab
-        self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
-        self.lb_lang.setText(self.language)
+        # self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
+        # self.lb_lang.setText(self.language)
+
+        self.dock_win = QtWidgets.QDockWidget()
+        self.dock_tab = QtWidgets.QTabWidget()
+        self.dock_win.setWidget(self.dock_tab)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_win)
+        self.dock_tab.setTabPosition(QTabWidget.South)
+        self.teridx = 0
+        self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
+        self.dock_tab.setTabsClosable(True)
+        self.run_event = False
+
+    def new_run_event(self):
+        if not self.run_event:
+            self.run_browser = QtWidgets.QTextBrowser()
+            self.run_browser.ensureCursorVisible()
+            pix = QPixmap('./imgs/run.jpg')
+            icon = QIcon()
+            icon.addPixmap(pix)
+            self.dock_tab.addTab(self.run_browser, 'Run ')
+            index = self.dock_tab.count() - 1
+            self.dock_tab.setTabIcon(index, icon)
+            self.dock_tab.setCurrentIndex(index)
+        self.run_event = True
+        cur_path = self.__get_textEditor().filepath
+        if cur_path:
+            if os.path.splitext(cur_path)[-1] == '.py':
+                self.run_browser.clear()
+                cmd = 'python ' + cur_path
+                self.run_browser.append(cmd)
+                self.run_process = QProcess()
+                self.run_process.readyReadStandardOutput.connect(self.show_process)
+                self.run_process.readyReadStandardError.connect(self.show_error)
+                self.run_process.finished.connect(self.run_exit)
+                self.run_process.start(cmd)
+                self.actionRun.setDisabled(True)
+
+    def run_exit(self, exitcode):
+        self.run_browser.append('\nProcess finished with exit code ' + str(exitcode))
+        self.run_browser.moveCursor(self.run_browser.textCursor().End)
+        self.actionRun.setDisabled(False)
+
+    def keyPressEvent(self, e):
+        super().keyPressEvent(e)
+        # print(e.key())
+
+    def show_error(self):
+        string = self.run_process.readAllStandardError()
+        print(string)
+        s = str(string, encoding='utf-8')
+        self.run_browser.append('<font color = red>' + s)
+
+    def show_process(self):
+        string = self.run_process.readAllStandardOutput()
+        s = str(string, encoding='utf-8')
+        self.run_browser.append(s[:-2])
+
+    # def new_terminal_event(self):
+    #     from threading import Thread
+    #     t = Thread(target=self.aaa)
+    #     t.start()
+    #
+    #     self.teridx += 1
+    #     self.temp = QTextEdit()
+    #     time.sleep(1)
+    #     calc_hwnd = win32gui.FindWindow(None, u'C:\WINDOWS\system32\cmd.exe')
+    #     print(calc_hwnd)
+    #
+    #     self.win = QWindow.fromWinId(calc_hwnd)
+    #
+    #     self.new_tab = self.createWindowContainer(self.win, self.temp)
+    #     self.new_tab.showMaximized()
+    #     # self.win.setKeyboardGrabEnabled(True)
+    #     # self.win.setMouseGrabEnabled(True)
+
+    #查找
+    def text_find(self):
+        textedit = self.__get_textEditor()
+        # if isinstance(textedit, QTextEdit):
+        if not self.win_find_is_show:
+            self.win_find_is_show = True
+            self.find_win = Find_Win(self,textedit)
+            self.find_win.show()
+
 
     def text_undo(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.undo()
+        # if isinstance(textedit, QTextEdit):
+        textedit.undo()
 
     def text_redo(self):
+        
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.redo()
+        # if isinstance(textedit, QTextEdit):
+        textedit.redo()
 
     def text_copy(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.copy()
+        # if isinstance(textedit, QTextEdit):
+        textedit.copy()
 
     def text_paste(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.paste()
+        # if isinstance(textedit, QTextEdit):
+        textedit.paste()
 
     def text_cut(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.cut()
+        # if isinstance(textedit, QTextEdit):
+        textedit.cut()
 
     def text_selectAll(self):
         textedit = self.__get_textEditor()
-        if isinstance(textedit, QTextEdit):
-            textedit.selectAll()
+        # if isinstance(textedit, QTextEdit):
+        textedit.selectAll()
 
     def selectLanguage(self):
         r"""
@@ -131,7 +225,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         }
         textedit = self.__get_textEditor()
         signal_src = self.sender().text()
-        # textedit.setlanguage(language_support[signal_src])
         language = language_support[signal_src]
         textedit.setlanguage(language)
         self.language = language
@@ -204,7 +297,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
         tab_new.setObjectName(new_tabname)
         layout = QGridLayout(tab_new)
         layout.setObjectName(f'layout_of_{new_tabname}')
-        text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget, language=language)
+        # text_editor = TextEditorS(name=newfile_name, parent_tabWidget=self.tabWidget,
+        #                           language=language, font_size=self.fontsize)
+        # text_editor = Editor()
+        text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
+                                language=language, font_content=self.font_content)
+        # text_editor.textChange.connect(self.__handle_textChange)
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
@@ -212,6 +310,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # 跳转到新页面
         index = self.tabWidget.count() - 1
         self.tabWidget.setCurrentIndex(index)
+        if language == 'md':
+            self.markdown_handler()
 
     def openfileEvent(self, file_path=None):
         r"""
@@ -316,6 +416,15 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
 
+    def setFontSizeEvent(self):
+        r"""
+            改变所有textedit的字体大小和样式
+        :return:
+        """
+        for tabitem in self.tab_dict.values():
+            textedit = tabitem.text
+            textedit.setFontSize(self.font_content)
+
     def rewardEvent(self):
         r"""
             打赏事件函数
@@ -323,7 +432,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """
         self.qrcode_window = Reward()
         self.qrcode_window.show()
-        
+        # TODO: 修改字体
+
+    def showpreferenceEvent(self):
+        r"""
+            调出偏好设置
+        :return:
+        """
+        self.preference = Preference(par=self)
+        self.preference.show()
+
     def aboutusEvent(self):
         r"""
             关于我们事件函数
@@ -360,55 +478,70 @@ class Notebook(QMainWindow, Ui_CodePlus):
         current_tab = tabitem.tab
         current_layout = tabitem.layout
         current_text = tabitem.text
-        linenum = current_text.document().lineCount()
-        content = ''
-        for i in range(linenum - 1):
-            current_content = current_text.document().findBlockByLineNumber(i).text()
-            current_content += '  \n'
-            content += current_content
-        for i in reversed(range(current_layout.count())): 
-            current_layout.takeAt(i).widget().deleteLater()
-        markdown_tab = QtWidgets.QTabWidget(current_tab)
-        markdown_tab.setTabPosition(3)
+        # content = current_text.text()
+        # content.replace(r'\r\n', r'  \n')
+        # content = ''
+        # for i in range(linenum - 1):
+        #     current_content = current_text.document().findBlockByLineNumber(i).text()
+        #     current_content += '  \n'
+        #     content += current_content
+        # for i in reversed(range(current_layout.count())): 
+        #     current_layout.takeAt(i).widget().deleteLater()
+        # markdown_tab = QtWidgets.QTabWidget(current_tab)
+        # markdown_tab.setTabPosition(3)
         # orin = QWidget()
-        md = QWidget()
+        # md = QWidget()
         # orin.setObjectName("orin")
-        md.setObjectName("md")
+        # md.setObjectName("md")
         # layout_orin = QGridLayout(orin)
         # text_editor_orin = TextEditorS(name='orin', parent_tabWidget=self.tabWidget, language=language)
         # layout_orin.addWidget(text_editor_orin, 0, 0, 1, 1)
-        layout_md = QGridLayout(md)
-        text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget, language='txt')
-        text_browser_md = TextEditorS(name='md_md', parent_tabWidget=self.tabWidget, language=self.language)
-        layout_md.addWidget(text_editor_txt, 0, 0, 1, 1)
-        layout_md.addWidget(text_browser_md, 0, 1, 1, 1)
+        # layout_md = QGridLayout(md)
+        # text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget,
+        #                         language='txt', font_content=self.font_content)
+        text_browser_md = TextEditorS(name='md_show', parent_tabWidget=self.tabWidget,
+                                language='md')
+        text_browser_md.setReadOnly(True)
+        # text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget, language='txt')
+        # text_browser_md = TextEditorS(name='md_md', parent_tabWidget=self.tabWidget, language=self.language)
+        # layout_md.addWidget(text_editor_txt, 0, 0, 1, 1)
+        # layout_md.addWidget(text_browser_md, 0, 1, 1, 1)
         # markdown_tab.addTab(orin, 'orin')
-        markdown_tab.addTab(md, 'md')
-        current_layout.addWidget(markdown_tab, 0, 0, 1, 1)
-        tabitem = TabItem(current_tab, current_layout, text_editor_txt, text_browser_md)
+        # markdown_tab.addTab(md, 'md')
+        current_layout.addWidget(text_browser_md, 0, 1, 1, 1)
+        # current_layout.addWidget(markdown_tab, 0, 0, 1, 1)
+        tabitem = TabItem(current_tab, current_layout, current_text, text_browser_md)
         now_tabname = 'tab_' + str(self.tabidx)
         self.tab_dict[now_tabname] = tabitem
-        text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
-        text_editor_txt.setPlainText(content)
+        current_text.linesChanged.connect(self.show_markdown)
         # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
-    
+        # text_editor_txt.setPlainText(content)
+        # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
+        
     def show_markdown(self):
         current_tab = self.__get_tabitem()
         textedit = current_tab.text
         textview = current_tab.textview
-        linenum = textedit.document().lineCount()
-        content = ''
-        for i in range(linenum - 1):
-            current_content = textedit.document().findBlockByLineNumber(i).text()
-            current_content += '  \n'
-            content += current_content
+        content = textedit.text()
+        content = content.replace('\r\n', '  \n')
+        # linenum = textedit.document().lineCount()
+        # content = ''
+        # for i in range(linenum - 1):
+        #     current_content = textedit.document().findBlockByLineNumber(i).text()
+        #     current_content += '  \n'
+        #     content += current_content
 
         textview.document().setMarkdown(content)
 
+#style_transfer
             
 
 if __name__ == '__main__':
+    # with open("style.qss") as f:
+    #     qss = f.read()
     app = QApplication(sys.argv)
+    #style_transfer()
+    # app.setStyleSheet(qss)
     MainWindow = Notebook()
     MainWindow.show()
     sys.exit(app.exec_())

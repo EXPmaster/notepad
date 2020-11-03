@@ -3,13 +3,15 @@
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 import os
+from PyQt5.Qsci import QsciScintilla
 
 
 class TextEditorS(QTextEdit):
     r"""
         文本框类
     """
-    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt'):
+    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt',
+                 font_size=12):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setObjectName(name)
@@ -18,6 +20,7 @@ class TextEditorS(QTextEdit):
         self.filepath = None
         self.language = language
         self.parent_tabw = parent_tabWidget
+        self.setFontSize(font_size)
 
     def isModified(self):
         return self.document().isModified()
@@ -32,11 +35,19 @@ class TextEditorS(QTextEdit):
         super().keyPressEvent(e)
         index = self.parent_tabw.currentIndex()
         tabtext = self.parent_tabw.tabText(index)
-        if not tabtext.endswith('*'):
+        if not tabtext.endswith('*') and self.isModified():
             self.parent_tabw.setTabText(index, tabtext + '*')
 
     def setlanguage(self, language):
         self.language = language
+
+    def setFontSize(self, fontSize=12):
+        r"""
+            修改字体大小
+        :param fontSize:
+        :return:
+        """
+        self.setStyleSheet(f"font: {fontSize}pt'.AppleSystemUIFont';")
 
     def load(self, file_path):
         r"""
