@@ -29,7 +29,6 @@ class IDEeditor(QsciScintilla):
         self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
         self.setFontSize(font_content)
 
-
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
         # the current position
