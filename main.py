@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win
@@ -16,8 +15,7 @@ from ide_edit import IDEeditor
 from PyQt5.QtGui import QPixmap, QIcon, QColor
 import pickle
 import shutil
-import faulthandler
-faulthandler.enable()
+
 
 class TabItem:
     r"""
@@ -85,6 +83,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.teridx = 0
         self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
         self.dock_tab.setTabsClosable(True)
+        self.dock_tab.tabCloseRequested.connect(self.dock_tab.close)
         self.run_event = False
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
@@ -351,6 +350,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
                                                                 'Markdown Files (*.md);;'
                                                                 'C Sources (*.c);;'
                                                                 'Python Scripts (*.py)')
+            if not file_path:
+                return
         # 判断文件是否可读取
         if not os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
             QMessageBox.warning(self, u'警告', u'文件类型不支持！')
@@ -564,6 +565,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #                         language='txt', font_content=self.font_content)
         text_browser_md = TextEditorS(name='md_show', parent_tabWidget=self.tabWidget,
                                 language='md')
+
         text_browser_md.setReadOnly(True)
         # text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget, language='txt')
         # text_browser_md = TextEditorS(name='md_md', parent_tabWidget=self.tabWidget, language=self.language)

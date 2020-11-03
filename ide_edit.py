@@ -31,6 +31,11 @@ class IDEeditor(QsciScintilla):
         self.api = None
 
         self.setFontSize(font_content)
+        #self.SendScintilla()
+        #self.replaceSelectedText()
+
+
+        
 
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
@@ -179,12 +184,12 @@ class IDEeditor(QsciScintilla):
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
         # Clickable margin 1 for showing markers
-        self.setMarginSensitivity(1, True)
-
-        self.markerDefine(QsciScintilla.RightArrow,
-                          self.ARROW_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("#ee1111"),
-                                      self.ARROW_MARKER_NUM)
+        # self.setMarginSensitivity(1, True)
+        #
+        # self.markerDefine(QsciScintilla.RightArrow,
+        #                   self.ARROW_MARKER_NUM)
+        # self.setMarkerBackgroundColor(QColor("#ee1111"),
+        #                               self.ARROW_MARKER_NUM)
         # 取消显示横向bar
         # self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
 

@@ -25,18 +25,18 @@ class TextEditorS(QTextEdit):
     def isModified(self):
         return self.document().isModified()
 
-    def keyPressEvent(self, e):
-        r"""
-            监测文件内容是否修改，若修改则在tab中文件名末尾
-            添加一个 '*'
-        :param e:
-        :return:
-        """
-        super().keyPressEvent(e)
-        index = self.parent_tabw.currentIndex()
-        tabtext = self.parent_tabw.tabText(index)
-        if not tabtext.endswith('*') and self.isModified():
-            self.parent_tabw.setTabText(index, tabtext + '*')
+    # def keyPressEvent(self, e):
+    #     r"""
+    #         监测文件内容是否修改，若修改则在tab中文件名末尾
+    #         添加一个 '*'
+    #     :param e:
+    #     :return:
+    #     """
+    #     super().keyPressEvent(e)
+    #     index = self.parent_tabw.currentIndex()
+    #     tabtext = self.parent_tabw.tabText(index)
+    #     if not tabtext.endswith('*') and self.isModified():
+    #         self.parent_tabw.setTabText(index, tabtext + '*')
 
     def setlanguage(self, language):
         self.language = language
