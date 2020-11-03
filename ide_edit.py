@@ -27,6 +27,9 @@ class IDEeditor(QsciScintilla):
         self.language = language
         self.parent_tabw = parent_tabWidget
         self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
+        self.lxr = None
+        self.api = None
+
         self.setFontSize(font_content)
 
         # IDE settings
@@ -42,14 +45,9 @@ class IDEeditor(QsciScintilla):
         self.setAutoIndent(True)
         self.setTabWidth(4)
 
-        self.lxr = None
-        self.api = None
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionSource(self.AcsAll)
-        self.cursorPositionChanged.connect(self.testEvent)
-
-    def testEvent(self):
-        print(self.lines())
+        # self.cursorPositionChanged.connect(self.testEvent)
 
     def keyPressEvent(self, e):
         r"""
@@ -115,13 +113,13 @@ class IDEeditor(QsciScintilla):
                            "yield", "next", "iter"]
         try:
             if isinstance(self.api, QsciAPIs):
-                self.api.clear()
+                del self.api
         except:
             pass
         self.api = QsciAPIs(self.lxr)
         for kw in python_keywords:
             self.api.add(kw)
-            self.api.prepare()
+        self.api.prepare()
         # self.api.add('class')
         # import PyQt5
         # pyqt_path = os.path.dirname(PyQt5.__file__)
@@ -141,13 +139,13 @@ class IDEeditor(QsciScintilla):
                       "static", "const", "sizeof", "typedef", "volatile"]
         try:
             if isinstance(self.api, QsciAPIs):
-                self.api.clear()
+                del self.api
         except:
             pass
         self.api = QsciAPIs(self.lxr)
         for kw in c_keywords:
             self.api.add(kw)
-            self.api.prepare()
+        self.api.prepare()
 
     def setFontSize(self, font_content):
         r"""

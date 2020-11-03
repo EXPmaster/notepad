@@ -3,7 +3,6 @@ from UI_forms import Ui_Find
 from PyQt5.QtGui import *
 
 
-
 class Find_Win(QMainWindow,Ui_Find):
     def __init__(self, parent_win,textedit):
         super().__init__()
