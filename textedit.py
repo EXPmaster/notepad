@@ -133,7 +133,7 @@ class RunBrowser(QTextEdit):
         self.start = False
         self.process = QProcess()
         self.cur = self.textCursor()  # 标记文本位置的游标
-        self.in_cur = QTextCursor( )   # 输入光标的映射游标
+        self.in_cur = QTextCursor()   # 输入光标的映射游标
         self.last_pos = 0             # 上一次打印的最后位置
         self.cursorPositionChanged.connect(self.in_cur_change)
 
