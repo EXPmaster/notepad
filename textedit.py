@@ -209,7 +209,7 @@ class RunBrowser(QTextEdit):
             self.cur.setPosition(self.last_pos)  # 定位至用户开始键入位置
             self.cur.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)  # 定位至行末-即回车位置
 
-            print(self.process.write(('\r\n'+self.cur.selectedText() + '\r\n' +'sdc').encode('gbk')))  # 写标准输入
+            print(self.process.write(self.cur.selectedText().encode('gbk')))  # 写标准输入
             self.cur.movePosition(QTextCursor.EndOfLine)
             # self.process.waitForBytesWritten()  # 等待写入完成
             self.setTextCursor(self.cur)  # 重新设置光标

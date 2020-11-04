@@ -111,7 +111,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.openIDEevent()
 
     def openIDEevent(self):
-        tmp_path = './.tmp'
+        tmp_path = '.tmp'
 
         def listdir(path):
             for item in os.listdir(path):
@@ -163,6 +163,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 self.actionRun.setDisabled(True)
                 self.actionStop.setDisabled(False)
 
+    def run_close_event(self):
+        self.run_event = False
+        ...
     #             self.run_browser.clear()
     #             cmd = 'python ' + cur_path
     #             self.run_browser.append(cmd)
@@ -550,7 +553,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :return: None
         """
         # 缓存文件的文件夹
-        tmp_path = './.tmp'
+        tmp_path = '.tmp'
         if os.path.exists(tmp_path):
             # os.system(f'rm -r {tmp_path}')
             shutil.rmtree(tmp_path)
