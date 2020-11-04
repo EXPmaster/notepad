@@ -88,6 +88,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.dock_tab.setTabsClosable(True)
         self.dock_tab.tabCloseRequested.connect(self.dock_tab.close)
         self.run_event = False
+        self.actionStop.setDisabled(True)
+        self.actionRun.triggered.connect(self.new_run_event)
+        self.actionStop.triggered.connect(self.stop_run)
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
@@ -99,6 +102,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionRun.triggered.connect(self.new_run_event)
         """--------tool------------"""
         self.actionWrite_Board.triggered.connect(self.OpenBoard)
+
+        self.enableClickFlag = True  # 改变tab enable的flag
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -140,10 +145,17 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
         self.lb_lang.setText(self.language)
 
+    def stop_run(self):
+        self.run_browser.process.close()
+
+    def run_exit_event(self):
+        self.actionRun.setDisabled(False)
+        self.actionStop.setDisabled(True)
+
     def new_run_event(self):
         if not self.run_event:
             self.run_browser = RunBrowser()
-            self.run_browser.exitSignal.connect(lambda: self.actionRun.setDisabled(False))
+            self.run_browser.exitSignal.connect(self.run_exit_event)
             pix = QPixmap('./imgs/run.jpg')
             icon = QIcon()
             icon.addPixmap(pix)
@@ -157,7 +169,11 @@ class Notebook(QMainWindow, Ui_CodePlus):
             if os.path.splitext(cur_path)[-1] == '.py':
                 self.run_browser.start_process(cur_path)
                 self.actionRun.setDisabled(True)
+                self.actionStop.setDisabled(False)
 
+    def run_close_event(self):
+        self.run_event = False
+        ...
     #             self.run_browser.clear()
     #             cmd = 'python ' + cur_path
     #             self.run_browser.append(cmd)
@@ -275,6 +291,44 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # super().tabWidget.changeEvent()
         self.language = self.cur_language()
         self.lb_lang.setText(self.language)
+        cur_tabs = self.tabWidget.count()
+        if cur_tabs == 0:
+            self.actionCut.setDisabled(True)
+            self.actionFind.setDisabled(True)
+            self.actionSave.setDisabled(True)
+            self.actionSave_All.setDisabled(True)
+            self.actionSave_As.setDisabled(True)
+            self.actionClose.setDisabled(True)
+            self.actionUndo.setDisabled(True)
+            self.actionRedo.setDisabled(True)
+            self.actionCopy.setDisabled(True)
+            self.actionPast.setDisabled(True)
+            self.actionSelect_All.setDisabled(True)
+            self.actionC.setDisabled(True)
+            self.actionPython.setDisabled(True)
+            self.actionPlain_Text.setDisabled(True)
+            self.actionMarkdown.setDisabled(True)
+            self.actionRun.setDisabled(True)
+            self.enableClickFlag = False
+        else:
+            if not self.enableClickFlag:
+                self.enableClickFlag = True
+                self.actionCut.setDisabled(False)
+                self.actionFind.setDisabled(False)
+                self.actionSave.setDisabled(False)
+                self.actionSave_All.setDisabled(False)
+                self.actionSave_As.setDisabled(False)
+                self.actionClose.setDisabled(False)
+                self.actionUndo.setDisabled(False)
+                self.actionRedo.setDisabled(False)
+                self.actionCopy.setDisabled(False)
+                self.actionPast.setDisabled(False)
+                self.actionSelect_All.setDisabled(False)
+                self.actionC.setDisabled(False)
+                self.actionPython.setDisabled(False)
+                self.actionPlain_Text.setDisabled(False)
+                self.actionMarkdown.setDisabled(False)
+                self.actionRun.setDisabled(False)
 
     def cur_language(self):
         if self.tabWidget.count() == 0:
@@ -353,7 +407,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabWidget.setCurrentIndex(index)
         if language == 'md':
             self.markdown_handler()
-        self.actionRun.setDisabled(False)
 
     def openfileEvent(self, file_path=None, mapping=None):
         r"""
@@ -467,8 +520,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             textedit.closeText()
             self.tabWidget.removeTab(index)
             del self.tab_dict[cur_tab_name]
-        if self.tabWidget.count() == 0:
-            self.actionRun.setDisabled(True)
 
     def setFontSizeEvent(self):
         r"""
