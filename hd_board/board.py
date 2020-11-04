@@ -4,16 +4,13 @@ from PyQt5.QtWidgets import QApplication,QMainWindow,QFrame,QWidget
 from PyQt5.QtGui import QPainter,QColor,QFont,QPixmap
 from PyQt5 import QtCore
 from .PaintBoard import PaintBoard
-import win32clipboard as w
-import win32con
+
 import pyperclip
 
 import torch
 import os
-from time import time
-from PIL import Image
+
 from torchvision import transforms
-import torch.nn.functional as F
 from .nets import SOAT
 from collections import OrderedDict
 
