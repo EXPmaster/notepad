@@ -17,6 +17,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 import pickle
 import shutil
 from textedit import  RunBrowser
+from hd_board import PaintForm
 
 
 class TabItem:
@@ -96,6 +97,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.language = 'txt'  # 当前语言
         # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
         self.actionRun.triggered.connect(self.new_run_event)
+        """--------tool------------"""
+        self.actionWrite_Board.triggered.connect(self.OpenBoard)
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -106,8 +109,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- 初始执行的操作 ---------"""
         self.openIDEevent()
 
+    def OpenBoard(self):
+        self.boardwindow = PaintForm()
+        self.boardwindow.show()
+
     def openIDEevent(self):
-        tmp_path = './.tmp'
+        tmp_path = '.tmp'
 
         def listdir(path):
             for item in os.listdir(path):
@@ -503,7 +510,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         :return: None
         """
         # 缓存文件的文件夹
-        tmp_path = './.tmp'
+        tmp_path = '.tmp'
         if os.path.exists(tmp_path):
             # os.system(f'rm -r {tmp_path}')
             shutil.rmtree(tmp_path)
