@@ -336,6 +336,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
                                 language=language, font_content=self.font_content)
         # text_editor.textChange.connect(self.__handle_textChange)
+        # text_editor.setStyleSheet('background-color:rgb(255,255,0);')
         layout.addWidget(text_editor, 0, 0, 1, 1)
         tabitem = TabItem(tab_new, layout, text_editor)
         self.tab_dict[new_tabname] = tabitem
