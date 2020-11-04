@@ -96,6 +96,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.language = 'txt'  # 当前语言
         # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
         self.actionRun.triggered.connect(self.new_run_event)
+        self.enableClickFlag = True  # 改变tab enable的flag
         """所有语言类型为：
             txt -> 文本文件
             md -> Markdown文件
@@ -268,6 +269,42 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # super().tabWidget.changeEvent()
         self.language = self.cur_language()
         self.lb_lang.setText(self.language)
+        cur_tabs = self.tabWidget.count()
+        if cur_tabs == 0:
+            self.actionCut.setDisabled(True)
+            self.actionFind.setDisabled(True)
+            self.actionSave.setDisabled(True)
+            self.actionSave_All.setDisabled(True)
+            self.actionSave_As.setDisabled(True)
+            self.actionClose.setDisabled(True)
+            self.actionUndo.setDisabled(True)
+            self.actionRedo.setDisabled(True)
+            self.actionCopy.setDisabled(True)
+            self.actionPast.setDisabled(True)
+            self.actionSelect_All.setDisabled(True)
+            self.actionC.setDisabled(True)
+            self.actionPython.setDisabled(True)
+            self.actionPlain_Text.setDisabled(True)
+            self.actionMarkdown.setDisabled(True)
+            self.enableClickFlag = False
+        else:
+            if not self.enableClickFlag:
+                self.enableClickFlag = True
+                self.actionCut.setDisabled(False)
+                self.actionFind.setDisabled(False)
+                self.actionSave.setDisabled(False)
+                self.actionSave_All.setDisabled(False)
+                self.actionSave_As.setDisabled(False)
+                self.actionClose.setDisabled(False)
+                self.actionUndo.setDisabled(False)
+                self.actionRedo.setDisabled(False)
+                self.actionCopy.setDisabled(False)
+                self.actionPast.setDisabled(False)
+                self.actionSelect_All.setDisabled(False)
+                self.actionC.setDisabled(False)
+                self.actionPython.setDisabled(False)
+                self.actionPlain_Text.setDisabled(False)
+                self.actionMarkdown.setDisabled(False)
 
     def cur_language(self):
         if self.tabWidget.count() == 0:
