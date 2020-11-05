@@ -6,7 +6,9 @@ import os
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
     QsciLexerMarkdown, QsciAPIs
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
-
+from ctags_parser import Ctags_parser
+from constant import python_keywords, c_keywords
+import re
 
 class IDEeditor(QsciScintilla):
     r"""
@@ -54,6 +56,7 @@ class IDEeditor(QsciScintilla):
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionSource(self.AcsAll)
         # self.cursorPositionChanged.connect(self.testEvent)
+        self.indicatorClicked.connect(self.indicator_clicked)
 
     def keyPressEvent(self, e):
         r"""
@@ -91,12 +94,14 @@ class IDEeditor(QsciScintilla):
         if language == 'py':
             self.lxr = QsciLexerPython()
             self.lxr.setFont(lexer_font)
+            self.lxr.parser = Ctags_parser.Instance()
             self.setLexer(self.lxr)
             self.__pythonCompletion()
 
         elif language == 'c':
             self.lxr = QsciLexerCPP()
             self.lxr.setFont(lexer_font)
+            self.lxr.parser = Ctags_parser.Instance()
             self.setLexer(self.lxr)
             self.__cCompletion()
         elif language == 'md':
@@ -211,6 +216,23 @@ class IDEeditor(QsciScintilla):
                 else:
                     self.filepath = file_path
             # self.setPlainText(text)
+            # print(file_path[-2:0])
+            if file_path[-2:] == 'py':
+                p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
+                token_list = [(token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
+                counter = 0
+                self.indicatorDefine(QsciScintilla.PlainIndicator, 0)
+                for i, token in enumerate(token_list):
+                    if token[0] in python_keywords:
+                        pass
+                    else:
+                        print(token[0])
+                        # symbol_name, symbol_kind = self.parser.get_symbol_kind(token[0])
+                        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
+                        self.SendScintilla(QsciScintilla.SCI_SETINDICATORVALUE, 0)
+                        print('count:{}, token:{}'.format(counter, token[1]))
+                        self.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, counter, token[1])
+                    counter += token[1]
             self.setText(text)
             # 设置当前文件名
             _, tmpfilename = os.path.split(file_path)
@@ -283,3 +305,27 @@ class IDEeditor(QsciScintilla):
 
     def closeText(self):
         self.close()
+
+    def indicator_clicked(self, line, index, keys):
+        QTimer.singleShot(100, functools.partial(
+            self.indicator_clicked_delayed, line, index, keys))
+        
+    ''''''
+
+    def indicator_clicked_delayed(self, line, index, keys):
+        pos = self.positionFromLineIndex(line, index)
+        start = self.SendScintilla(QsciScintilla.SCI_INDICATORSTART, 0, pos)
+        end = self.SendScintilla(QsciScintilla.SCI_INDICATOREND, 0, pos)
+        text = self.text()[start:end]
+        print("indicator '{}' clicked in line '{}', index '{}'".format(text, line, index))
+
+        relPath, line = self.__lexer.parser.where_to_jump(text)
+        linefocus = int(line) - 1
+        print("jump to file: " + relPath)
+        with open('path.txt', 'r') as fr:
+            path = fr.readlines()
+        projectFolderPath = path
+        relPath = projectFolderPath + '\\' + relPath
+        self.__show_symbol_handle(relPath, linefocus=linefocus, colfocus=0)
+        
+    ''''''

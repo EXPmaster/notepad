@@ -17,7 +17,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QColor
 import pickle
 import shutil
 from textedit import  RunBrowser
-from hd_board import PaintForm
+# from hd_board import PaintForm
 
 
 class TabItem:
@@ -101,7 +101,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
         self.actionRun.triggered.connect(self.new_run_event)
         """--------tool------------"""
-        self.actionWrite_Board.triggered.connect(self.OpenBoard)
+        # self.actionWrite_Board.triggered.connect(self.OpenBoard)
 
         self.enableClickFlag = True  # 改变tab enable的flag
         """所有语言类型为：
@@ -114,9 +114,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- 初始执行的操作 ---------"""
         self.openIDEevent()
 
-    def OpenBoard(self):
-        self.boardwindow = PaintForm()
-        self.boardwindow.show()
+    # def OpenBoard(self):
+    #     self.boardwindow = PaintForm()
+    #     self.boardwindow.show()
 
     def openIDEevent(self):
         tmp_path = '.tmp'
@@ -452,6 +452,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.dirtree.doubleClicked.connect(self.__choose_file)
             self.dirtree.setWindowTitle("Dir View")
             self.dirtree.setHeaderHidden(True)
+            with open('path.txt', 'w') as fw:
+                fw.write(folder_path)
 
     def __choose_file(self, index):
         file_path = self.model.filePath(index)
@@ -596,6 +598,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         except:
             pass
 
+        if os.path.exists('path.txt'):
+            os.remove('path.txt')
+
         # if not check_quit:
         #     ret_code = QMessageBox.information(self, '提示', '存在文件未保存，确定退出？',
         #                                            QMessageBox.Yes | QMessageBox.No)
@@ -673,6 +678,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             content = textedit.text()
             content = content.replace('\r\n', '  \n')
             textview.document().setMarkdown(content)
+            # textview.document().setHtml(content)
         # linenum = textedit.document().lineCount()
         # content = ''
         # for i in range(linenum - 1):
@@ -682,13 +688,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
 
 #style_transfer
 
-
 if __name__ == '__main__':
-    with open("style.qss") as f:
-        qss = f.read()
+    # with open("style.qss") as f:
+    #     qss = f.read()
     app = QApplication(sys.argv)
     #style_transfer()
-    app.setStyleSheet(qss)
+    # app.setStyleSheet(qss)
     MainWindow = Notebook()
     MainWindow.show()
     sys.exit(app.exec_())
