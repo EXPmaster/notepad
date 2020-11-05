@@ -202,7 +202,7 @@ class IDEeditor(QsciScintilla):
             with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f.readlines():
                     text += line
-                if mapping is not None or file_path.startswith('./.tmp'):
+                if mapping is not None or file_path.startswith('.tmp'):
                     self.filepath = mapping
                 else:
                     self.filepath = file_path

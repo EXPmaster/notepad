@@ -13,7 +13,7 @@ from textedit import TextEditorS
 import os
 from preference import Preference
 from ide_edit import IDEeditor
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from textedit import  RunBrowser
@@ -40,6 +40,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        """-------- Short Cuts ---------"""
+        self.actionSave.setShortcut(QKeySequence(QKeySequence.Save))
+        self.actionUndo.setShortcut(QKeySequence(QKeySequence.Undo))
+        self.actionRedo.setShortcut(QKeySequence(QKeySequence.Redo))
+        self.actionNew.setShortcut(QKeySequence(QKeySequence.New))
+        self.actionCopy.setShortcut(QKeySequence(QKeySequence.Copy))
+        self.actionPaste.setShortcut(QKeySequence(QKeySequence.Paste))
+        self.actionCut.setShortcut(QKeySequence(QKeySequence.Cut))
+        self.actionFind.setShortcut(QKeySequence(QKeySequence.Find))
+        self.actionSelect_All.setShortcut(QKeySequence(QKeySequence.SelectAll))
         """-------- Code ---------"""
         self.actionAbout_us.triggered.connect(self.aboutusEvent)  # 关于我们
         self.actionExit.triggered.connect(self.closeEvent)  # 退出
@@ -59,7 +69,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionRedo.triggered.connect(self.text_redo)  # 重做
         self.actionCut.triggered.connect(self.text_cut)  # 剪切
         self.actionCopy.triggered.connect(self.text_copy)  # 复制
-        self.actionPast.triggered.connect(self.text_paste)  # 粘贴
+        self.actionPaste.triggered.connect(self.text_paste)  # 粘贴
         self.actionFind.triggered.connect(self.text_find)  # 查找
         self.win_find_is_show = False
         self.actionSelect_All.triggered.connect(self.text_selectAll)  # 全选
@@ -304,7 +314,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.actionUndo.setDisabled(True)
             self.actionRedo.setDisabled(True)
             self.actionCopy.setDisabled(True)
-            self.actionPast.setDisabled(True)
+            self.actionPaste.setDisabled(True)
             self.actionSelect_All.setDisabled(True)
             self.actionC.setDisabled(True)
             self.actionPython.setDisabled(True)
@@ -324,7 +334,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 self.actionUndo.setDisabled(False)
                 self.actionRedo.setDisabled(False)
                 self.actionCopy.setDisabled(False)
-                self.actionPast.setDisabled(False)
+                self.actionPaste.setDisabled(False)
                 self.actionSelect_All.setDisabled(False)
                 self.actionC.setDisabled(False)
                 self.actionPython.setDisabled(False)
