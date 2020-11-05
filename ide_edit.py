@@ -28,17 +28,13 @@ class IDEeditor(QsciScintilla):
         self.filepath = None
         self.language = language
         self.parent_tabw = parent_tabWidget
-        self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
+        self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': '12'}
         self.lxr = None
         self.api = None
 
         self.setFontSize(font_content)
         #self.SendScintilla()
         #self.replaceSelectedText()
-
-
-        
-
 
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
@@ -89,7 +85,7 @@ class IDEeditor(QsciScintilla):
         :return:
         """
         font = self.font_content['font']
-        size = self.font_content['size']
+        size = int(self.font_content['size'])
         lexer_font = QFont(font, size)
         if language == 'py':
             self.lxr = QsciLexerPython()
@@ -167,7 +163,7 @@ class IDEeditor(QsciScintilla):
         # self.setStyleSheet(f"font: {fontSize}pt'.AppleSystemUIFont';")
         self.font_content = font_content
         font = font_content['font']
-        size = font_content['size']
+        size = int(font_content['size'])
         qfont = QFont(font, size)
 
         self.setFont(qfont)
@@ -180,7 +176,7 @@ class IDEeditor(QsciScintilla):
         :return:
         """
         font_categoty = self.font_content['font']
-        size = self.font_content['size']
+        size = int(self.font_content['size'])
         font = QFont(font_categoty, size)
 
         # Margin 0 is used for line numbers
@@ -211,7 +207,7 @@ class IDEeditor(QsciScintilla):
             with open(file_path, 'r', encoding='utf-8') as f:
                 for line in f.readlines():
                     text += line
-                if mapping is not None or file_path.startswith('./.tmp'):
+                if mapping is not None or file_path.startswith('.tmp'):
                     self.filepath = mapping
                 else:
                     self.filepath = file_path

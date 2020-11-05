@@ -13,7 +13,7 @@ from textedit import TextEditorS
 import os
 from preference import Preference
 from ide_edit import IDEeditor
-from PyQt5.QtGui import QPixmap, QIcon, QColor
+from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from textedit import  RunBrowser
@@ -40,6 +40,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        """-------- Short Cuts ---------"""
+        self.actionSave.setShortcut(QKeySequence(QKeySequence.Save))
+        self.actionUndo.setShortcut(QKeySequence(QKeySequence.Undo))
+        self.actionRedo.setShortcut(QKeySequence(QKeySequence.Redo))
+        self.actionNew.setShortcut(QKeySequence(QKeySequence.New))
+        self.actionCopy.setShortcut(QKeySequence(QKeySequence.Copy))
+        self.actionPaste.setShortcut(QKeySequence(QKeySequence.Paste))
+        self.actionCut.setShortcut(QKeySequence(QKeySequence.Cut))
+        self.actionFind.setShortcut(QKeySequence(QKeySequence.Find))
+        self.actionSelect_All.setShortcut(QKeySequence(QKeySequence.SelectAll))
         """-------- Code ---------"""
         self.actionAbout_us.triggered.connect(self.aboutusEvent)  # 关于我们
         self.actionExit.triggered.connect(self.closeEvent)  # 退出
@@ -59,7 +69,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionRedo.triggered.connect(self.text_redo)  # 重做
         self.actionCut.triggered.connect(self.text_cut)  # 剪切
         self.actionCopy.triggered.connect(self.text_copy)  # 复制
-        self.actionPast.triggered.connect(self.text_paste)  # 粘贴
+        self.actionPaste.triggered.connect(self.text_paste)  # 粘贴
         self.actionFind.triggered.connect(self.text_find)  # 查找
         self.win_find_is_show = False
         self.actionSelect_All.triggered.connect(self.text_selectAll)  # 全选
@@ -94,7 +104,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.font_content = {'font': 'Andale Mono', 'size': 12}
+        self.font_content = ...
+        self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
@@ -125,6 +136,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             for item in os.listdir(path):
                 if not item.startswith('.') and not item.endswith('.pkl'):
                     yield item
+
         if not os.path.exists(tmp_path) or not os.path.exists(os.path.join(tmp_path, 'mapping.pkl')):
             self.__create_tab()  # 初始创建一个tab
             self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
@@ -302,7 +314,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.actionUndo.setDisabled(True)
             self.actionRedo.setDisabled(True)
             self.actionCopy.setDisabled(True)
-            self.actionPast.setDisabled(True)
+            self.actionPaste.setDisabled(True)
             self.actionSelect_All.setDisabled(True)
             self.actionC.setDisabled(True)
             self.actionPython.setDisabled(True)
@@ -322,7 +334,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 self.actionUndo.setDisabled(False)
                 self.actionRedo.setDisabled(False)
                 self.actionCopy.setDisabled(False)
-                self.actionPast.setDisabled(False)
+                self.actionPaste.setDisabled(False)
                 self.actionSelect_All.setDisabled(False)
                 self.actionC.setDisabled(False)
                 self.actionPython.setDisabled(False)
@@ -545,7 +557,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             调出偏好设置
         :return:
         """
-        self.preference = Preference(par=self)
         self.preference.show()
 
     def aboutusEvent(self):
@@ -553,8 +564,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
             关于我们事件函数
         :return:
         """
-        QMessageBox.information(self, 'About us', 'This editor was designed by xxx, \n'
-                                                  'with hand-writing board inside')
+        QMessageBox.information(self, 'About us',
+                                'Monkey Editor v0.1\n'
+                                u'天猴工作室出品 \n'
+                                u'制作人：吴栋、廖满文、汪潇翔、文一晴、吴雨暄、张维天')
 
     def closeEvent(self, event):
         r"""
@@ -609,6 +622,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     else:
         #         event.ignore()
         # else:
+        # 保存preference
+        self.preference.close()
         self.close()
 
     def markdown_handler(self):
