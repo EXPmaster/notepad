@@ -156,6 +156,7 @@ class Preference(QWidget):
         if fontsize in range(12, 31):
             self.font_content = font_family
             self.par.font_content = font_family
+            self.par.interpreter = self.interpreter
             self.par.setFontSizeEvent()
             self.save_cfg()
         else:

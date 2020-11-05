@@ -18,7 +18,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from RunWindow import RunBrowser
-# from hd_board import PaintForm
+from hd_board import PaintForm
 
 
 class TabItem:
@@ -62,7 +62,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
         self.actionOpen_Folder.triggered.connect(self.openfolderEvent)# 打开文件夹
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
-        # self.actionSave.setShortcut('Ctrl + S')
         self.actionSave_All.triggered.connect(self.saveallEvent)  # 全部保存
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
         self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
@@ -85,7 +84,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.run_browser = RunBrowser()
         self.run_browser.startSignal.connect(self.run_start_event)
         self.run_browser.exitSignal.connect(self.run_exit_event)
-        self.interpreter = ...
         self.gcc = ...
         self.actionRun.triggered.connect(self.new_run_event)
         self.actionStop.triggered.connect(self.stop_run)
@@ -114,7 +112,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.font_content = ...
+        self.font_content = ...  # 字体和大小
+        self.interpreter = ...  # 解释器
         self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
@@ -232,7 +231,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             os.system('start cmd')
         elif self.local_system == 'Linux':
             os.system('gnome-terminal')
-        elif self.local_system == 'Mac':
+        elif self.local_system == 'Darwin':
             # TODO Mac打开终端
             ...
     # def new_terminal_event(self):
