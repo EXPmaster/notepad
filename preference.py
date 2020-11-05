@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QListWidget, \
     QPushButton, QVBoxLayout, QLabel, QMessageBox
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QIntValidator, QFont
+import configparser
 
 
 class Preference(QWidget):
@@ -20,15 +21,18 @@ class Preference(QWidget):
         self.leftlist = QListWidget()
         self.leftlist.insertItem(0, 'Font')
         self.leftlist.insertItem(1, 'Environment')
-        font_family = {'font': 'Andale Mono', 'size': 12}
-        self.font_content = par.font_content if par is not None else font_family
+        self.font_content = {'font': 'Andale Mono', 'size': '12'}
+        self.cfg_path = 'config.ini'
+        self.load_cfg()
         self.fontpage = QWidget()
         self.environpage = QWidget()
-        self.lineEdit = QLineEdit()
-        self.fontbox = QFontComboBox()
+        self.lineEdit = QLineEdit()  # 设置字体大小的文本框
+        self.fontbox = QFontComboBox()  # 设置字体样式的下拉框
+        self.interpEdit = QLineEdit()  # 设置解释器的文本框
 
         self.fontUI()
         self.buttonUI()
+        self.environUI()
 
         self.stack = QStackedWidget(self)
         self.stack.addWidget(self.fontpage)
@@ -47,7 +51,31 @@ class Preference(QWidget):
         self.setLayout(Vbox)
         self.leftlist.currentRowChanged.connect(self.display)
 
+    def load_cfg(self):
+        cfg_parser = configparser.ConfigParser()
+        cfg_parser.read(self.cfg_path)
+        # secs = cfg_parser.sections()
+        try:
+            self.font_content = dict(cfg_parser.items('font_family'))
+        except Exception as e:
+            self.save_cfg()
+        self.par.font_content = self.font_content
+
+    def save_cfg(self):
+        cfg_parser = configparser.ConfigParser()
+        cfg_parser.read(self.cfg_path)
+        if 'font_family' not in cfg_parser.sections():
+            cfg_parser.add_section('font_family')
+        cfg_parser.set('font_family', 'font', self.font_content['font'])
+        cfg_parser.set('font_family', 'size', self.font_content['size'])
+        with open(self.cfg_path, 'w') as f:
+            cfg_parser.write(f)
+
     def fontUI(self):
+        r"""
+        字体设置栏目的UI界面
+        :return:
+        """
         font_layout = QFormLayout()
         line_edit = self.lineEdit
         line_edit.setText(str(self.font_content['size']))
@@ -62,6 +90,10 @@ class Preference(QWidget):
         self.fontpage.setLayout(font_layout)
 
     def buttonUI(self):
+        r"""
+        确认、取消按键的UI
+        :return:
+        """
         layout = QHBoxLayout()
         ack_btn = QPushButton()
         layout.addWidget(QLabel())
@@ -76,14 +108,25 @@ class Preference(QWidget):
         ack_btn.clicked.connect(self.__ack_btn_event)
         self.buttonsWidget.setLayout(layout)
 
+    def environUI(self):
+        r"""
+        环境设置栏目的UI界面
+        :return:
+        """
+        environ_layout = QFormLayout()
+        environ_layout.addRow('Interpreter', self.interpEdit)
+
+        self.environpage.setLayout(environ_layout)
+
     def __ack_btn_event(self):
         fontsize = int(self.lineEdit.text())
         font = self.fontbox.currentFont().toString().split(',')[0]
-        font_family = {'font': font, 'size': fontsize}
+        font_family = {'font': font, 'size': str(fontsize)}
         if fontsize in range(12, 31):
             self.font_content = font_family
             self.par.font_content = font_family
             self.par.setFontSizeEvent()
+            self.save_cfg()
             self.close()
         else:
             QMessageBox.warning(self, 'Warning', 'Font size must be in range 12-30!')

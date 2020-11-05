@@ -94,7 +94,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.font_content = {'font': 'Andale Mono', 'size': 12}
+        self.font_content = ...
+        self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
@@ -125,6 +126,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             for item in os.listdir(path):
                 if not item.startswith('.') and not item.endswith('.pkl'):
                     yield item
+
         if not os.path.exists(tmp_path) or not os.path.exists(os.path.join(tmp_path, 'mapping.pkl')):
             self.__create_tab()  # 初始创建一个tab
             self.tabWidget.currentChanged.connect(self.changeTab)  # 切换tab触发
@@ -543,7 +545,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             调出偏好设置
         :return:
         """
-        self.preference = Preference(par=self)
         self.preference.show()
 
     def aboutusEvent(self):
@@ -551,8 +552,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
             关于我们事件函数
         :return:
         """
-        QMessageBox.information(self, 'About us', 'This editor was designed by xxx, \n'
-                                                  'with hand-writing board inside')
+        QMessageBox.information(self, 'About us',
+                                'Monkey Editor v0.1\n'
+                                u'天猴工作室出品 \n'
+                                u'制作人：吴栋、廖满文、汪潇翔、文一晴、吴雨暄、张维天')
 
     def closeEvent(self, event):
         r"""
@@ -604,6 +607,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     else:
         #         event.ignore()
         # else:
+        # 保存preference
+        self.preference.close()
         self.close()
 
     def markdown_handler(self):

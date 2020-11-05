@@ -26,7 +26,7 @@ class IDEeditor(QsciScintilla):
         self.filepath = None
         self.language = language
         self.parent_tabw = parent_tabWidget
-        self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': 12}
+        self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': '12'}
         self.lxr = None
         self.api = None
 
@@ -86,7 +86,7 @@ class IDEeditor(QsciScintilla):
         :return:
         """
         font = self.font_content['font']
-        size = self.font_content['size']
+        size = int(self.font_content['size'])
         lexer_font = QFont(font, size)
         if language == 'py':
             self.lxr = QsciLexerPython()
@@ -162,7 +162,7 @@ class IDEeditor(QsciScintilla):
         # self.setStyleSheet(f"font: {fontSize}pt'.AppleSystemUIFont';")
         self.font_content = font_content
         font = font_content['font']
-        size = font_content['size']
+        size = int(font_content['size'])
         qfont = QFont(font, size)
 
         self.setFont(qfont)
@@ -175,7 +175,7 @@ class IDEeditor(QsciScintilla):
         :return:
         """
         font_categoty = self.font_content['font']
-        size = self.font_content['size']
+        size = int(self.font_content['size'])
         font = QFont(font_categoty, size)
 
         # Margin 0 is used for line numbers
