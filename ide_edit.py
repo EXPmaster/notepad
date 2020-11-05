@@ -34,10 +34,6 @@ class IDEeditor(QsciScintilla):
         #self.SendScintilla()
         #self.replaceSelectedText()
 
-
-        
-
-
         # IDE settings
         # Brace matching: enable for a brace immediately before or after
         # the current position
