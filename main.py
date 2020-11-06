@@ -80,14 +80,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionC.triggered.connect(self.selectLanguage)
         self.actionMarkdown.triggered.connect(self.selectLanguage)
         self.actionPython.triggered.connect(self.selectLanguage)
-        """-------- Run ---------"""
-        self.run_browser = RunBrowser()
-        self.run_browser.startSignal.connect(self.run_start_event)
-        self.run_browser.exitSignal.connect(self.run_exit_event)
-        self.gcc = ...
-        self.actionRun.triggered.connect(self.new_run_event)
-        self.actionStop.triggered.connect(self.stop_run)
-        self.actionCompile.triggered.connect(self.compile_event)
         """-------- Whatever... ---------"""
         self.actionQR_Code.triggered.connect(self.rewardEvent)  # 打赏
         """-------- Status bar ---------"""
@@ -113,13 +105,20 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
         self.font_content = ...  # 字体和大小
-        self.interpreter = ...  # 解释器
+        self.interpreter = None  # 解释器
         self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
         self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        """-------- Run ---------"""
+        self.run_browser = RunBrowser(self.font_content)
+        self.run_browser.startSignal.connect(self.run_start_event)
+        self.run_browser.exitSignal.connect(self.run_exit_event)
+        self.gcc = ...
         self.actionRun.triggered.connect(self.new_run_event)
+        self.actionStop.triggered.connect(self.stop_run)
+        self.actionCompile.triggered.connect(self.compile_event)
         """--------tool------------"""
         self.actionWrite_Board.triggered.connect(self.OpenBoard)
 
@@ -178,6 +177,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionStop.setDisabled(True)
 
     def new_run_event(self):
+        print('aaaaaa')
         if not self.run_event:
             pix = QPixmap('./imgs/run.jpg')
             icon = QIcon()
@@ -190,8 +190,11 @@ class Notebook(QMainWindow, Ui_CodePlus):
         cur_path = self.__get_textEditor().filepath
         if cur_path:
             if os.path.splitext(cur_path)[-1] == '.py':
-                cmd = 'C:/Users/a/anaconda3/python.exe ' + cur_path
-                # TODO cmd = ''.join(self.interpreter + cur_path)
+                if not self.interpreter:
+                    QMessageBox.warning(self, '提示', '未设置有效的python解释器\n' +
+                                        '->\n'.join(['Code', 'Preference', 'Environment', 'interpreter']))
+                    return
+                cmd = ' '.join([self.interpreter, cur_path])
                 self.run_browser.start_process(cmd)
             elif os.path.splitext(cur_path)[-1] == '.c':
                 cmd = os.path.splitext(cur_path)[0] + '.exe'
@@ -199,7 +202,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
                     self.run_browser.process.start(cmd)
                 else:
                     compile_cmd = 'gcc ' + cur_path
-                    # TODO compile_cmd = ''.join(self.gcc + cur_path)
                     self.run_browser.process.start(compile_cmd)
                     self.run_browser.process.waitForFinished()
                     if os.path.exists(cmd):
@@ -219,10 +221,15 @@ class Notebook(QMainWindow, Ui_CodePlus):
         if cur_path:
             if os.path.splitext(cur_path)[-1] == '.c':
                 cmd = 'gcc ' + cur_path
-                # TODO cmd = ''.join(self.gcc + cur_path)
                 self.run_browser.start_process(cmd)
 
     def run_close_event(self):
+        if not self.actionRun.isEnabled():
+            ref = QMessageBox.information(self, '提示', '还有项目正在运行\n确定退出？', QMessageBox.Yes | QMessageBox.No)
+            if ref == QMessageBox.Yes:
+                self.stop_run()
+            else:
+                return
         self.run_event = False
         self.dock_tab.removeTab(0)
 
@@ -452,6 +459,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
             if not file_path:
                 return
         # 判断文件是否可读取
+        if os.path.isdir(file_path):  # 屏蔽文件夹
+            return
         if not os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
             QMessageBox.warning(self, u'警告', u'文件类型不支持！')
             return
@@ -480,7 +489,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.dirtree.setSortingEnabled(True)
             self.dirtree.doubleClicked.connect(self.__choose_file)
             self.dirtree.setWindowTitle("Dir View")
-            self.dirtree.setHeaderHidden(True)
+            # self.dirtree.setHeaderHidden(True)
 
     def __choose_file(self, index):
         file_path = self.model.filePath(index)
@@ -558,6 +567,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         for tabitem in self.tab_dict.values():
             textedit = tabitem.text
             textedit.setFontSize(self.font_content)
+        self.run_browser.set_font(self.font_content)
 
     def rewardEvent(self):
         r"""

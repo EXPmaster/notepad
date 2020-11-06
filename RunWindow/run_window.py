@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtCore import Qt, QProcess, pyqtSignal
-from PyQt5.QtGui import QTextCursor, QColor
+from PyQt5.QtGui import QTextCursor, QColor, QFont
 
 
 class RunBrowser(QTextEdit):
     startSignal = pyqtSignal()
     exitSignal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, font):
         super().__init__()
         self.start = False
         self.process = QProcess()
@@ -17,7 +17,16 @@ class RunBrowser(QTextEdit):
         self.cur = self.textCursor()  # 标记文本位置的游标
         self.in_cur = QTextCursor()   # 输入光标的映射游标
         self.last_pos = 0             # 上一次打印的最后位置
+        self.font_content = font if font else {'font': 'Andale Mono', 'size': '12'}
+        self.set_font(self.font_content)
         self.cursorPositionChanged.connect(self.in_cur_change)
+
+    def set_font(self, font_content):
+        self.font_content = font_content
+        font = font_content['font']
+        size = int(font_content['size'])
+        qfont = QFont(font, size)
+        self.setFont(qfont)
 
     def in_cur_change(self):
         """由输入/鼠标点击引起的输入光标的位置变化，将光标全局位置映射到文本框内相对位置"""
@@ -62,6 +71,7 @@ class RunBrowser(QTextEdit):
 
     def run_exit(self, exitcode):
         """进程退出返回退出码，发射退出信号"""
+        self.setTextColor(QColor('black'))
         self.append('\nProcess finished with exit code ' + str(exitcode))
         self.start = False
         self.exitSignal.emit()
