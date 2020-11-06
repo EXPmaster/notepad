@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget,QFileSystemModel
+from PyQt5.QtCore import Qt, pyqtSignal,QFileSystemWatcher
 import os
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
     QsciLexerMarkdown, QsciAPIs
@@ -13,6 +13,7 @@ class IDEeditor(QsciScintilla):
         文本框类
     """
     ARROW_MARKER_NUM = 8
+    newFileSignal = pyqtSignal()
 
     def __init__(self, name, parent=None, parent_tabWidget=None, language='txt',
                  font_content=None):
@@ -272,6 +273,7 @@ class IDEeditor(QsciScintilla):
             self.setModified(False)
             index = self.parent_tabw.currentIndex()
             self.parent_tabw.setTabText(index, tmpfilename)
+            self.newFileSignal.emit()
             return True
         else:
             # QMessageBox.warning(self, 'Warning', 'File name should not be empty')

@@ -18,7 +18,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from RunWindow import RunBrowser
-from hd_board import PaintForm
+#from hd_board import PaintForm
 
 
 class TabItem:
@@ -88,6 +88,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.statusbar.addWidget(self.lb_margin, 4)
         self.statusbar.addWidget(self.lb_lang, 1)
         """-------- Dir Tree ---------"""
+        self.model = QDirModel()
         """ view from source"""
         """-------- Run Event ---------"""
         self.dock_win = QtWidgets.QDockWidget()
@@ -177,7 +178,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionStop.setDisabled(True)
 
     def new_run_event(self):
-        print('aaaaaa')
         if not self.run_event:
             pix = QPixmap('./imgs/run.jpg')
             icon = QIcon()
@@ -432,6 +432,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # text_editor = Editor()
         text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
                                 language=language, font_content=self.font_content)
+        text_editor.newFileSignal.connect(lambda: self.model.refresh())
         # text_editor.textChange.connect(self.__handle_textChange)
 
         layout.addWidget(text_editor, 0, 0, 1, 1)
@@ -481,7 +482,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def openfolderEvent(self):
         folder_path = QFileDialog.getExistingDirectory(self, '请选择打开的文件夹')
         if folder_path:
-            self.model = QDirModel()
             self.dirtree.setModel(self.model)
             self.dirtree.setRootIndex(self.model.index(folder_path))
             self.dirtree.setAnimated(False)
