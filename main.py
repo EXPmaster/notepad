@@ -5,7 +5,7 @@ import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
-    QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
+     QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QTextCursor
 from reward_handler import Reward
@@ -105,18 +105,20 @@ class Notebook(QMainWindow, Ui_CodePlus):
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.font_content = ...  # 字体和大小
+        self.font_content = None  # 字体和大小
         self.interpreter = None  # 解释器
         self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
+        """-------- Terminal ---------"""
         self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        # self.actionClose_Terminal.triggered.connect(self.close_terminal_event)
         """-------- Run ---------"""
         self.run_browser = RunBrowser(self.font_content)
         self.run_browser.startSignal.connect(self.run_start_event)
         self.run_browser.exitSignal.connect(self.run_exit_event)
-        self.gcc = ...
+        self.gcc = None
         self.actionRun.triggered.connect(self.new_run_event)
         self.actionStop.triggered.connect(self.stop_run)
         self.actionCompile.triggered.connect(self.compile_event)
@@ -239,8 +241,12 @@ class Notebook(QMainWindow, Ui_CodePlus):
         elif self.local_system == 'Linux':
             os.system('gnome-terminal')
         elif self.local_system == 'Darwin':
-            # TODO Mac打开终端
-            ...
+            os.system('open -a Terminal .')
+
+    def close_terminal_event(self):
+        if self.local_system == 'Darwin':
+            import appscript
+            appscript.app('Terminal').do_script('exit')
     # def new_terminal_event(self):
     #     from threading import Thread
     #     t = Thread(target=self.aaa)

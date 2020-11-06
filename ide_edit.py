@@ -2,10 +2,14 @@
 
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget,QFileSystemModel
 from PyQt5.QtCore import Qt, pyqtSignal,QFileSystemWatcher
+from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
+from PyQt5.QtCore import Qt, QTimer
 import os
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
     QsciLexerMarkdown, QsciAPIs
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
+import functools
+from AST import goto_definition
 
 
 class IDEeditor(QsciScintilla):
@@ -22,6 +26,7 @@ class IDEeditor(QsciScintilla):
         self.setObjectName(name)
         # self.document().setModified(False)
         # self.setWindowModified(False)
+        self.setUtf8(True)
         self.setModified(False)
         self.setText('')
         self.filepath = None
@@ -51,6 +56,35 @@ class IDEeditor(QsciScintilla):
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionSource(self.AcsAll)
         # self.cursorPositionChanged.connect(self.testEvent)
+        # Hotspot
+        # 5:关键词
+        # 8：类名
+        # 9：函数名
+        # 10：标点符号
+        # 11：变量名
+        self.SendScintilla(self.SCI_STYLESETHOTSPOT, 8, True)
+        self.SendScintilla(self.SCI_STYLESETHOTSPOT, 9, True)
+        self.SendScintilla(self.SCI_STYLESETHOTSPOT, 11, True)
+        self.SCN_HOTSPOTCLICK.connect(self.hotspot_clicked)
+
+    def hotspot_clicked(self, position, modifiers):
+        r"""
+        点击hotspot触发事件
+        :return:
+        """
+        QTimer.singleShot(100, functools.partial(
+            self.hotspot_clicked_delayed, position, modifiers))
+
+    def hotspot_clicked_delayed(self, position, modifiers):
+        start = self.SendScintilla(self.SCI_WORDSTARTPOSITION, position)
+        end = self.SendScintilla(self.SCI_WORDENDPOSITION, position)
+        text = self.text()[start:end]
+        click_line = self.SendScintilla(self.SCI_LINEFROMPOSITION, position) + 1
+        click_column = self.SendScintilla(self.SCI_GETCOLUMN, position) + 1
+        new_row, new_col = goto_definition(text, click_line, click_column, contents=self.text())
+        if new_row is not None and new_col is not None:
+            self.setCursorPosition(new_row-1, new_col-1)
+        print(text)
 
     def keyPressEvent(self, e):
         r"""
@@ -182,14 +216,21 @@ class IDEeditor(QsciScintilla):
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
         # Clickable margin 1 for showing markers
-        # self.setMarginSensitivity(1, True)
-        #
-        # self.markerDefine(QsciScintilla.RightArrow,
-        #                   self.ARROW_MARKER_NUM)
-        # self.setMarkerBackgroundColor(QColor("#ee1111"),
-        #                               self.ARROW_MARKER_NUM)
+        self.setMarginSensitivity(1, True)
+        self.marginClicked.connect(self.on_margin_clicked)
+        self.markerDefine(QsciScintilla.RightArrow,
+                          self.ARROW_MARKER_NUM)
+        self.setMarkerBackgroundColor(QColor("#ee1111"),
+                                      self.ARROW_MARKER_NUM)
         # 取消显示横向bar
         # self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+
+    def on_margin_clicked(self, nmargin, nline, modifiers):
+        # Toggle marker for the line the margin was clicked on
+        if self.markersAtLine(nline) != 0:
+            self.markerDelete(nline, self.ARROW_MARKER_NUM)
+        else:
+            self.markerAdd(nline, self.ARROW_MARKER_NUM)
 
     def load(self, file_path, mapping=None):
         r"""
