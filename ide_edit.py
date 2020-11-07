@@ -72,13 +72,14 @@ class IDEeditor(QsciScintilla):
         点击hotspot触发事件
         :return:
         """
+        print(position)
         QTimer.singleShot(100, functools.partial(
             self.hotspot_clicked_delayed, position, modifiers))
 
     def hotspot_clicked_delayed(self, position, modifiers):
         start = self.SendScintilla(self.SCI_WORDSTARTPOSITION, position)
         end = self.SendScintilla(self.SCI_WORDENDPOSITION, position)
-        text = self.text()[start:end]
+        text = self.text(start, end)# [start:end]
         click_line = self.SendScintilla(self.SCI_LINEFROMPOSITION, position) + 1
         click_column = self.SendScintilla(self.SCI_GETCOLUMN, position) + 1
         new_row, new_col = goto_definition(text, click_line, click_column, contents=self.text())

@@ -86,15 +86,12 @@ def goto_definition(word, row, col, contents=None):
     # with open(filename, 'r') as f:
     #     contents = f.read()
     # contents = 'Vbox = QVBoxLayout()\nVbox.addWidget(self.buttonsWidget)'
-
-    tree = ast.parse(contents)
-
-    # row, col begins from 0
-
-    parser = GDChecker(tree, row, word)
-    scope = parser.targetScope
-
     try:
+        tree = ast.parse(contents)
+        # row, col begins from 0
+        parser = GDChecker(tree, row, word)
+        scope = parser.targetScope
+
         if scope:
             source = parser.targetScope.source
             # If it's a function arg set, find the relevant one.
