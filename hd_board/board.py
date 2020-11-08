@@ -15,7 +15,7 @@ from .nets import SOAT
 from collections import OrderedDict
 
 class PaintForm(QMainWindow,Ui_paint_window):
-    def __init__(self,parent=None):
+    def __init__(self,editor,parent=None):
         super(PaintForm, self).__init__(parent)
         with open('./hd_board/new_char_dict.txt', 'r',encoding='UTF-8') as f:
             self.char_dict = {k: v.strip() for k,v in enumerate(f.readlines())}
@@ -42,18 +42,18 @@ class PaintForm(QMainWindow,Ui_paint_window):
             new_state_dict[name] = v
         self.model.load_state_dict(new_state_dict)
 
-        self.words=['汪','潇','翔']
+        self.words=['手','写','板']
         self.word=''
         self.setupUi(self)
         self.r.setFrameStyle(QFrame.Box|QFrame.Plain)
         self.r.setLineWidth(5)
         self.boardframe = PaintBoard(self)
         self.boardframe.setGeometry(QtCore.QRect(20, 20, 330, 330))
-        self.Textplay1=Textplay(0,self)
+        self.Textplay1=Textplay(0,editor,self.boardframe,self)
         self.Textplay1.setGeometry(QtCore.QRect(385, 20, 70, 70))
-        self.Textplay2=Textplay(1,self)
+        self.Textplay2=Textplay(1,editor,self.boardframe,self)
         self.Textplay2.setGeometry(QtCore.QRect(385, 120, 70, 70))
-        self.Textplay3=Textplay(2,self)
+        self.Textplay3=Textplay(2,editor,self.boardframe,self)
         self.Textplay3.setGeometry(QtCore.QRect(385, 220, 70, 70))
 
         #清零按钮绑定
@@ -118,9 +118,11 @@ class PaintForm(QMainWindow,Ui_paint_window):
         return (self.word)
 
 class Textplay(QWidget):
-    def __init__(self,index,parent=None):
+    def __init__(self,index,editor,boardframe,parent=None):
         super(Textplay, self).__init__(parent)
         self.root=parent
+        self.editor = editor
+        self.boardframe=boardframe
         self.resize(70,70)
         self.index=index
 
@@ -136,13 +138,16 @@ class Textplay(QWidget):
         #设置画笔的颜色
         qp.setPen(QColor(0,0,0))
         #设置字体
-        qp.setFont(QFont('SimSun',50))
+        qp.setFont(QFont('SimSun',30))
         #绘制文字
         qp.drawText(event.rect(),QtCore.Qt.AlignCenter,self.text)
     
     def mousePressEvent(self, QMouseEvent):
         self.root.word = self.text
-        pyperclip.copy(self.root.get_res())
+        self.editor.insert(self.root.get_res())
+        line,index =self.editor.getCursorPosition()
+        self.editor.setCursorPosition(line,index+1)
+        self.boardframe.Clear()
 
 
 if __name__ == "__main__":

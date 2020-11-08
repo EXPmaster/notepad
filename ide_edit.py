@@ -36,6 +36,8 @@ class IDEeditor(QsciScintilla):
         self.lxr = None
         self.api = None
 
+
+
         self.setFontSize(font_content)
         #self.SendScintilla()
         #self.replaceSelectedText()

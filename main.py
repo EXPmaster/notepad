@@ -18,7 +18,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from RunWindow import RunBrowser
-#from hd_board import PaintForm
+from hd_board import PaintForm
 
 
 class TabItem:
@@ -137,7 +137,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.openIDEevent()
 
     def OpenBoard(self):
-        self.boardwindow = PaintForm()
+        textedit = self.__get_textEditor()
+        self.boardwindow = PaintForm(textedit)
         self.boardwindow.show()
 
     def openIDEevent(self):

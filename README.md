@@ -1,6 +1,7 @@
-### Monkey Editor (Python 大作业)
+### Monkey Editor (Python 大作业)
+
 
-作者：吴栋、廖满文、汪潇翔、文一晴、吴雨暄、张维天
+吴栋、廖满文、汪潇翔、文一晴、吴雨暄、张维天
 
 #### 项目简介
 
@@ -57,6 +58,7 @@ Python+PyQt5实现一个NotePad 文本编辑器，支持手写输入
 ├── main.py  // 运行notepad的主程序
 └── reward_handler.py  // 打赏函数
 ```
+
 
 
 
