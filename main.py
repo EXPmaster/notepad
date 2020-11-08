@@ -17,6 +17,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
 from textedit import  RunBrowser
+import ntpath
 # from hd_board import PaintForm
 
 
@@ -700,6 +701,31 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     current_content = textedit.document().findBlockByLineNumber(i).text()
         #     current_content += '  \n'
         #     content += current_content
+
+    # def show_symbol(self, filepath, linefocus = 0, colfocus = 0):
+    #     for i in range(self.count()):
+    #         tabname = str(self.tabText(i))
+    #         if tabname == ntpath.basename(filepath):
+    #             # Tab already exists
+    #             self.tabWidget.setCurrentIndex(i)
+    #             self.tabWidget.widget(i).setCursorPosition(linefocus, colfocus)
+    #             self.tabWidget.widget(i).ensureCursorVisible()
+    #             self.tabWidget.widget(i).setFocus()
+    #             return
+    #         ###
+    #     ###
+    #     self.openfileEvent(file_path=filepath)
+    #     index = self.tabWidget.currentIndex()
+    #     _, tabitem = self.__find_tab_by_index(index)
+    #     current_tab = tabitem.tab
+    #     # Make new tab
+    #     current_tab.setCursorPosition(linefocus, colfocus)
+    #     current_tab.ensureCursorVisible()
+    #     current_tab.setFocus()
+
+        ###
+
+    ''''''
 
 #style_transfer
 

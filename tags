@@ -1,0 +1,243 @@
+ABC	E:/notepad/test.py	/^class ABC(/
+Back	E:/notepad/hd_board/board.py	/^    def Back(/
+Back_end	E:/notepad/hd_board/board.py	/^    def Back_end(/
+BasicConv	E:/notepad/hd_board/nets.py	/^class BasicConv(/
+Clear	E:/notepad/hd_board/PaintBoard.py	/^    def Clear(/
+Eraser_choose	E:/notepad/hd_board/board.py	/^    def Eraser_choose(/
+Find	E:/notepad/UI_forms/Find.py	1
+Find_Win	E:/notepad/all_windows/Find_win.py	/^class Find_Win(/
+Find_Win	E:/notepad/all_windows/Find_win_ide.py	/^class Find_Win(/
+Find_win	E:/notepad/all_windows/Find_win.py	1
+Find_win_ide	E:/notepad/all_windows/Find_win_ide.py	1
+IDEeditor	E:/notepad/ide_edit.py	/^class IDEeditor(/
+Instance	E:/notepad/singleton.py	/^    def Instance(/
+LmdbDataset	E:/notepad/hd_board/utils.py	/^class LmdbDataset(/
+Load_lmdb	E:/notepad/hd_board/utils.py	/^def Load_lmdb(/
+Logger	E:/notepad/hd_board/utils.py	/^class Logger(/
+MainWindow	E:/notepad/UI_forms/MainWindow.py	1
+Notebook	E:/notepad/main.py	/^class Notebook(/
+PaintBoard	E:/notepad/hd_board/PaintBoard.py	/^class PaintBoard(/
+PaintBoard	E:/notepad/hd_board/PaintBoard.py	1
+PaintForm	E:/notepad/hd_board/board.py	/^class PaintForm(/
+Preference	E:/notepad/preference.py	/^class Preference(/
+Ptags_parser	E:/notepad/ptags_parser.py	/^class Ptags_parser(/
+Reward	E:/notepad/UI_forms/Reward.py	1
+Reward	E:/notepad/reward_handler.py	/^class Reward(/
+RunBrowser	E:/notepad/textedit.py	/^class RunBrowser(/
+SEModule	E:/notepad/hd_board/nets.py	/^class SEModule(/
+SOAT	E:/notepad/hd_board/nets.py	/^class SOAT(/
+SimplePythonEditor	E:/notepad/code_edit.py	/^class SimplePythonEditor(/
+Singleton	E:/notepad/singleton.py	/^class Singleton:/
+TFLogger	E:/notepad/hd_board/utils.py	/^class TFLogger(/
+TabItem	E:/notepad/main.py	/^class TabItem:/
+TextEditorS	E:/notepad/textedit.py	/^class TextEditorS(/
+Textplay	E:/notepad/hd_board/board.py	/^class Textplay(/
+Ui_CodePlus	E:/notepad/UI_forms/MainWindow.py	/^class Ui_CodePlus(/
+Ui_Find	E:/notepad/UI_forms/Find.py	/^class Ui_Find(/
+Ui_Form_reward	E:/notepad/UI_forms/Reward.py	/^class Ui_Form_reward(/
+Ui_paint_window	E:/notepad/hd_board/ui_paint.py	/^class Ui_paint_window(/
+__apply_btn_event	E:/notepad/preference.py	/^    def __apply_btn_event(/
+__cCompletion	E:/notepad/ide_edit.py	/^    def __cCompletion(/
+__call__	E:/notepad/singleton.py	/^    def __call__(/
+__choose_file	E:/notepad/main.py	/^    def __choose_file(/
+__create_tab	E:/notepad/main.py	/^    def __create_tab(/
+__del__	E:/notepad/hd_board/utils.py	/^    def __del__(/
+__del__	E:/notepad/ptags_parser.py	/^    def __del__(/
+__enter__	E:/notepad/hd_board/utils.py	/^    def __enter__(/
+__exit__	E:/notepad/hd_board/utils.py	/^    def __exit__(/
+__find_tab_by_index	E:/notepad/main.py	/^    def __find_tab_by_index(/
+__get_tabitem	E:/notepad/main.py	/^    def __get_tabitem(/
+__get_textEditor	E:/notepad/main.py	/^    def __get_textEditor(/
+__getitem__	E:/notepad/hd_board/utils.py	/^    def __getitem__(/
+__init__	E:/notepad/UI_forms/__init__.py	1
+__init__	E:/notepad/all_windows/Find_win.py	/^    def __init__(/
+__init__	E:/notepad/all_windows/Find_win_ide.py	/^    def __init__(/
+__init__	E:/notepad/all_windows/__init__.py	1
+__init__	E:/notepad/code_edit.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/PaintBoard.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/__init__.py	1
+__init__	E:/notepad/hd_board/board.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/board.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/nets.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/nets.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/nets.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/utils.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/utils.py	/^    def __init__(/
+__init__	E:/notepad/hd_board/utils.py	/^    def __init__(/
+__init__	E:/notepad/ide_edit.py	/^    def __init__(/
+__init__	E:/notepad/main.py	/^    def __init__(/
+__init__	E:/notepad/main.py	/^    def __init__(/
+__init__	E:/notepad/preference.py	/^    def __init__(/
+__init__	E:/notepad/ptags_parser.py	/^    def __init__(/
+__init__	E:/notepad/reward_handler.py	/^    def __init__(/
+__init__	E:/notepad/singleton.py	/^    def __init__(/
+__init__	E:/notepad/test.py	/^    def __init__(/
+__init__	E:/notepad/textedit.py	/^    def __init__(/
+__init__	E:/notepad/textedit.py	/^    def __init__(/
+__instancecheck__	E:/notepad/singleton.py	/^    def __instancecheck__(/
+__len__	E:/notepad/hd_board/utils.py	/^    def __len__(/
+__ok_btn_event	E:/notepad/preference.py	/^    def __ok_btn_event(/
+__pythonCompletion	E:/notepad/ide_edit.py	/^    def __pythonCompletion(/
+aboutusEvent	E:/notepad/main.py	/^    def aboutusEvent(/
+addPicture	E:/notepad/reward_handler.py	/^    def addPicture(/
+add_words	E:/notepad/hd_board/board.py	/^    def add_words(/
+board	E:/notepad/hd_board/board.py	1
+build_ptags	E:/notepad/ptags_parser.py	/^    def build_ptags(/
+build_ptags_database	E:/notepad/ptags_parser.py	/^    def build_ptags_database(/
+buttonUI	E:/notepad/preference.py	/^    def buttonUI(/
+changeTab	E:/notepad/main.py	/^    def changeTab(/
+clear	E:/notepad/all_windows/Find_win.py	/^    def clear(/
+clear	E:/notepad/all_windows/Find_win_ide.py	/^    def clear(/
+clear_all	E:/notepad/all_windows/Find_win.py	/^    def clear_all(/
+clear_all	E:/notepad/all_windows/Find_win_ide.py	/^    def clear_all(/
+close	E:/notepad/hd_board/utils.py	/^    def close(/
+close	E:/notepad/hd_board/utils.py	/^    def close(/
+closeEvent	E:/notepad/all_windows/Find_win.py	/^    def closeEvent(/
+closeEvent	E:/notepad/all_windows/Find_win_ide.py	/^    def closeEvent(/
+closeEvent	E:/notepad/main.py	/^    def closeEvent(/
+closeText	E:/notepad/ide_edit.py	/^    def closeText(/
+closeText	E:/notepad/textedit.py	/^    def closeText(/
+closefileEvent	E:/notepad/main.py	/^    def closefileEvent(/
+codeRow	E:/notepad/ide_edit.py	/^    def codeRow(/
+code_edit	E:/notepad/code_edit.py	1
+color_changed	E:/notepad/hd_board/board.py	/^    def color_changed(/
+constant	E:/notepad/constant.py	1
+content_changed	E:/notepad/all_windows/Find_win.py	/^    def content_changed(/
+content_changed	E:/notepad/all_windows/Find_win_ide.py	/^    def content_changed(/
+count	E:/notepad/all_windows/Find_win.py	/^    def count(/
+count	E:/notepad/all_windows/Find_win_ide.py	/^    def count(/
+cur_language	E:/notepad/main.py	/^    def cur_language(/
+curse_move	E:/notepad/all_windows/Find_win.py	/^    def curse_move(/
+curse_move	E:/notepad/all_windows/Find_win_ide.py	/^    def curse_move(/
+display	E:/notepad/preference.py	/^    def display(/
+draw	E:/notepad/hd_board/PaintBoard.py	/^    def draw(/
+drawText	E:/notepad/hd_board/board.py	/^    def drawText(/
+environHandler	E:/notepad/preference.py	/^    def environHandler(/
+environUI	E:/notepad/preference.py	/^    def environUI(/
+find	E:/notepad/all_windows/Find_win.py	/^    def find(/
+find	E:/notepad/all_windows/Find_win_ide.py	/^    def find(/
+find_find	E:/notepad/all_windows/Find_win.py	/^    def find_find(/
+find_find	E:/notepad/all_windows/Find_win_ide.py	/^    def find_find(/
+flush	E:/notepad/hd_board/utils.py	/^    def flush(/
+fontUI	E:/notepad/preference.py	/^    def fontUI(/
+forward	E:/notepad/hd_board/nets.py	/^    def forward(/
+forward	E:/notepad/hd_board/nets.py	/^    def forward(/
+forward	E:/notepad/hd_board/nets.py	/^    def forward(/
+get_res	E:/notepad/hd_board/board.py	/^    def get_res(/
+get_symbol_kind	E:/notepad/ptags_parser.py	/^    def get_symbol_kind(/
+histo_summary	E:/notepad/hd_board/utils.py	/^    def histo_summary(/
+hotspot_clicked	E:/notepad/ide_edit.py	/^    def hotspot_clicked(/
+hotspot_clicked_delayed	E:/notepad/ide_edit.py	/^    def hotspot_clicked_delayed(/
+ide_edit	E:/notepad/ide_edit.py	1
+image_summary	E:/notepad/hd_board/utils.py	/^    def image_summary(/
+in_cur_change	E:/notepad/textedit.py	/^    def in_cur_change(/
+index2coor	E:/notepad/all_windows/Find_win_ide.py	/^    def index2coor(/
+isModified	E:/notepad/textedit.py	/^    def isModified(/
+keyPressEvent	E:/notepad/ide_edit.py	/^    def keyPressEvent(/
+keyPressEvent	E:/notepad/textedit.py	/^    def keyPressEvent(/
+line_changed	E:/notepad/hd_board/board.py	/^    def line_changed(/
+listdir	E:/notepad/main.py	/^        def listdir(/
+load	E:/notepad/ide_edit.py	/^    def load(/
+load	E:/notepad/textedit.py	/^    def load(/
+load_cfg	E:/notepad/preference.py	/^    def load_cfg(/
+load_checkpoint	E:/notepad/hd_board/utils.py	/^def load_checkpoint(/
+main	E:/notepad/main.py	1
+main	E:/notepad/ptags.py	/^def main(/
+mark	E:/notepad/all_windows/Find_win.py	/^    def mark(/
+mark	E:/notepad/all_windows/Find_win_ide.py	/^    def mark(/
+mark_all	E:/notepad/all_windows/Find_win.py	/^    def mark_all(/
+mark_all	E:/notepad/all_windows/Find_win_ide.py	/^    def mark_all(/
+markdown_handler	E:/notepad/main.py	/^    def markdown_handler(/
+mkdir_if_missing	E:/notepad/hd_board/utils.py	/^def mkdir_if_missing(/
+mouseMoveEvent	E:/notepad/hd_board/PaintBoard.py	/^    def mouseMoveEvent(/
+mousePressEvent	E:/notepad/hd_board/PaintBoard.py	/^    def mousePressEvent(/
+mousePressEvent	E:/notepad/hd_board/board.py	/^    def mousePressEvent(/
+mouseReleaseEvent	E:/notepad/hd_board/PaintBoard.py	/^    def mouseReleaseEvent(/
+mytrain	E:/notepad/hd_board/train.py	/^def mytrain(/
+nets	E:/notepad/hd_board/nets.py	1
+new_run_event	E:/notepad/main.py	/^    def new_run_event(/
+newfileEvent	E:/notepad/main.py	/^    def newfileEvent(/
+normalmode_handler	E:/notepad/main.py	/^    def normalmode_handler(/
+on_margin_clicked	E:/notepad/code_edit.py	/^    def on_margin_clicked(/
+openIDEevent	E:/notepad/main.py	/^    def openIDEevent(/
+openfileEvent	E:/notepad/main.py	/^    def openfileEvent(/
+openfolderEvent	E:/notepad/main.py	/^    def openfolderEvent(/
+paintEvent	E:/notepad/hd_board/PaintBoard.py	/^    def paintEvent(/
+paintEvent	E:/notepad/hd_board/board.py	/^    def paintEvent(/
+parse_args	E:/notepad/ptags.py	/^def parse_args(/
+predict	E:/notepad/hd_board/PaintBoard.py	/^    def predict(/
+preference	E:/notepad/preference.py	1
+ptags	E:/notepad/ptags.py	1
+ptags_parser	E:/notepad/ptags_parser.py	1
+replace	E:/notepad/all_windows/Find_win.py	/^    def replace(/
+replace	E:/notepad/all_windows/Find_win_ide.py	/^    def replace(/
+replace_all	E:/notepad/all_windows/Find_win.py	/^    def replace_all(/
+replace_all	E:/notepad/all_windows/Find_win_ide.py	/^    def replace_all(/
+replace_find	E:/notepad/all_windows/Find_win.py	/^    def replace_find(/
+replace_find	E:/notepad/all_windows/Find_win_ide.py	/^    def replace_find(/
+replace_one	E:/notepad/all_windows/Find_win.py	/^    def replace_one(/
+replace_one	E:/notepad/all_windows/Find_win_ide.py	/^    def replace_one(/
+retranslateUi	E:/notepad/UI_forms/Find.py	/^    def retranslateUi(/
+retranslateUi	E:/notepad/UI_forms/MainWindow.py	/^    def retranslateUi(/
+retranslateUi	E:/notepad/UI_forms/Reward.py	/^    def retranslateUi(/
+retranslateUi	E:/notepad/hd_board/ui_paint.py	/^    def retranslateUi(/
+rewardEvent	E:/notepad/main.py	/^    def rewardEvent(/
+reward_handler	E:/notepad/reward_handler.py	1
+run_close_event	E:/notepad/main.py	/^    def run_close_event(/
+run_exit	E:/notepad/textedit.py	/^    def run_exit(/
+run_exit_event	E:/notepad/main.py	/^    def run_exit_event(/
+save	E:/notepad/hd_board/PaintBoard.py	/^    def save(/
+save	E:/notepad/ide_edit.py	/^    def save(/
+save	E:/notepad/textedit.py	/^    def save(/
+save_cfg	E:/notepad/preference.py	/^    def save_cfg(/
+save_checkpoint	E:/notepad/hd_board/utils.py	/^def save_checkpoint(/
+saveallEvent	E:/notepad/main.py	/^    def saveallEvent(/
+saveas	E:/notepad/ide_edit.py	/^    def saveas(/
+saveas	E:/notepad/textedit.py	/^    def saveas(/
+saveasEvent	E:/notepad/main.py	/^    def saveasEvent(/
+savefileEvent	E:/notepad/main.py	/^    def savefileEvent(/
+scalar_summary	E:/notepad/hd_board/utils.py	/^    def scalar_summary(/
+select	E:/notepad/all_windows/Find_win.py	/^    def select(/
+select	E:/notepad/all_windows/Find_win_ide.py	/^    def select(/
+selectLanguage	E:/notepad/main.py	/^    def selectLanguage(/
+setFontSize	E:/notepad/ide_edit.py	/^    def setFontSize(/
+setFontSize	E:/notepad/textedit.py	/^    def setFontSize(/
+setFontSizeEvent	E:/notepad/main.py	/^    def setFontSizeEvent(/
+set_lexer	E:/notepad/ide_edit.py	/^    def set_lexer(/
+setlanguage	E:/notepad/ide_edit.py	/^    def setlanguage(/
+setlanguage	E:/notepad/textedit.py	/^    def setlanguage(/
+setupUi	E:/notepad/UI_forms/Find.py	/^    def setupUi(/
+setupUi	E:/notepad/UI_forms/MainWindow.py	/^    def setupUi(/
+setupUi	E:/notepad/UI_forms/Reward.py	/^    def setupUi(/
+setupUi	E:/notepad/hd_board/ui_paint.py	/^    def setupUi(/
+show_error	E:/notepad/textedit.py	/^    def show_error(/
+show_markdown	E:/notepad/main.py	/^    def show_markdown(/
+show_output	E:/notepad/textedit.py	/^    def show_output(/
+showpreferenceEvent	E:/notepad/main.py	/^    def showpreferenceEvent(/
+singleton	E:/notepad/singleton.py	1
+start_process	E:/notepad/textedit.py	/^    def start_process(/
+stop_run	E:/notepad/main.py	/^    def stop_run(/
+target_changed	E:/notepad/all_windows/Find_win.py	/^    def target_changed(/
+target_changed	E:/notepad/all_windows/Find_win_ide.py	/^    def target_changed(/
+test	E:/notepad/hd_board/utils.py	/^def test(/
+test	E:/notepad/test.py	1
+text_copy	E:/notepad/main.py	/^    def text_copy(/
+text_cut	E:/notepad/main.py	/^    def text_cut(/
+text_find	E:/notepad/main.py	/^    def text_find(/
+text_paste	E:/notepad/main.py	/^    def text_paste(/
+text_redo	E:/notepad/main.py	/^    def text_redo(/
+text_selectAll	E:/notepad/main.py	/^    def text_selectAll(/
+text_syn	E:/notepad/all_windows/Find_win.py	/^    def text_syn(/
+text_syn	E:/notepad/all_windows/Find_win_ide.py	/^    def text_syn(/
+text_undo	E:/notepad/main.py	/^    def text_undo(/
+textedit	E:/notepad/textedit.py	1
+train	E:/notepad/hd_board/train.py	1
+train	E:/notepad/hd_board/utils.py	/^def train(/
+treat_file	E:/notepad/ptags.py	/^def treat_file(/
+ui_paint	E:/notepad/hd_board/ui_paint.py	1
+utils	E:/notepad/hd_board/utils.py	1
+where_to_jump	E:/notepad/ptags_parser.py	/^    def where_to_jump(/
+win_close	E:/notepad/all_windows/Find_win.py	/^    def win_close(/
+win_close	E:/notepad/all_windows/Find_win_ide.py	/^    def win_close(/
+write	E:/notepad/hd_board/utils.py	/^    def write(/
+write_results	E:/notepad/hd_board/utils.py	/^def write_results(/

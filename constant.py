@@ -2,7 +2,8 @@ python_keywords = ["False", "None", "True", "and", "as", "assert", "break", "cla
                            "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
                            "is", "isinstance", "print", "len", "range", "enumerate", "input", "int", "float", "bool",
                            "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with",
-                           "yield", "next", "iter"]
+                            "yield", "next", "iter"]
+                            #  '.', '(', ')', ':', ',', '\'', '`']
 
 c_keywords = ["char", "double", "enum", "float", "int", "long", "short", "signed", "struct",
                       "union", "unsigned", "void", "for", "do", "while", "break", "continue", "if",

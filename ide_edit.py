@@ -3,12 +3,14 @@
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 import os
+import functools
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
     QsciLexerMarkdown, QsciAPIs
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
-from ctags_parser import Ctags_parser
+from ptags_parser import Ptags_parser
 from constant import python_keywords, c_keywords
 import re
+from PyQt5.QtCore import QTimer
 
 class IDEeditor(QsciScintilla):
     r"""
@@ -16,7 +18,7 @@ class IDEeditor(QsciScintilla):
     """
     ARROW_MARKER_NUM = 8
 
-    def __init__(self, name, parent=None, parent_tabWidget=None, language='txt',
+    def __init__(self, name, show_symbol=None, parent=None, parent_tabWidget=None, language='txt',
                  font_content=None):
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -31,6 +33,7 @@ class IDEeditor(QsciScintilla):
         self.font_content = font_content if font_content else {'font': 'Andale Mono', 'size': '12'}
         self.lxr = None
         self.api = None
+        self.__show_symbol_handle = show_symbol
 
         self.setFontSize(font_content)
         #self.SendScintilla()
@@ -52,7 +55,8 @@ class IDEeditor(QsciScintilla):
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionSource(self.AcsAll)
         # self.cursorPositionChanged.connect(self.testEvent)
-        self.indicatorClicked.connect(self.indicator_clicked)
+        # self.indicatorClicked.connect(self.indicator_clicked)
+        self.SCN_HOTSPOTCLICK.connect(self.hotspot_clicked)
 
     def keyPressEvent(self, e):
         r"""
@@ -90,14 +94,23 @@ class IDEeditor(QsciScintilla):
         if language == 'py':
             self.lxr = QsciLexerPython()
             self.lxr.setFont(lexer_font)
-            self.lxr.parser = Ctags_parser.Instance()
+            # self.lxr.parser = Ptags_parser.Instance()
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 8, True)
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 9, True)
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 11, True)
+            # self.__editor.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, indicator_number)
+            # self.__editor.SendScintilla(QsciScintilla.SCI_SETINDICATORVALUE, value)
+            # self.__editor.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, start_pos, nr_of_chars)
             self.setLexer(self.lxr)
             self.__pythonCompletion()
 
         elif language == 'c':
             self.lxr = QsciLexerCPP()
             self.lxr.setFont(lexer_font)
-            self.lxr.parser = Ctags_parser.Instance()
+            # self.lxr.parser = Ptags_parser.Instance()
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 8, True)
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 9, True)
+            self.SendScintilla(self.SCI_STYLESETHOTSPOT, 11, True)
             self.setLexer(self.lxr)
             self.__cCompletion()
         elif language == 'md':
@@ -212,23 +225,6 @@ class IDEeditor(QsciScintilla):
                 else:
                     self.filepath = file_path
             # self.setPlainText(text)
-            # print(file_path[-2:0])
-            if file_path[-2:] == 'py':
-                p = re.compile(r"[*]\/|\/[*]|\s+|\w+|\W")
-                token_list = [(token, len(bytearray(token, "utf-8"))) for token in p.findall(text)]
-                counter = 0
-                self.indicatorDefine(QsciScintilla.PlainIndicator, 0)
-                for i, token in enumerate(token_list):
-                    if token[0] in python_keywords:
-                        pass
-                    else:
-                        print(token[0])
-                        # symbol_name, symbol_kind = self.parser.get_symbol_kind(token[0])
-                        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
-                        self.SendScintilla(QsciScintilla.SCI_SETINDICATORVALUE, 0)
-                        print('count:{}, token:{}'.format(counter, token[1]))
-                        self.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, counter, token[1])
-                    counter += token[1]
             self.setText(text)
             # 设置当前文件名
             _, tmpfilename = os.path.split(file_path)
@@ -302,26 +298,32 @@ class IDEeditor(QsciScintilla):
     def closeText(self):
         self.close()
 
-    def indicator_clicked(self, line, index, keys):
+    def hotspot_clicked(self, position, modifiers):
         QTimer.singleShot(100, functools.partial(
-            self.indicator_clicked_delayed, line, index, keys))
+            self.hotspot_clicked_delayed, position, modifiers))
         
     ''''''
 
-    def indicator_clicked_delayed(self, line, index, keys):
-        pos = self.positionFromLineIndex(line, index)
-        start = self.SendScintilla(QsciScintilla.SCI_INDICATORSTART, 0, pos)
-        end = self.SendScintilla(QsciScintilla.SCI_INDICATOREND, 0, pos)
-        text = self.text()[start:end]
-        print("indicator '{}' clicked in line '{}', index '{}'".format(text, line, index))
+    def hotspot_clicked_delayed(self, position, modifiers):
+        print("Hotspot clicked at position: " + str(position))
+        start = self.SendScintilla(self.SCI_WORDSTARTPOSITION, position)
+        end = self.SendScintilla(self.SCI_WORDENDPOSITION, position)
+        # click_line = self.SendScintilla(self.SCI_LINEFROMPOSITION, position)
+        # click_column = self.SendScintilla(self.SCI_GETCOLUMN, position)
+        # start = self.SendScintilla(self.SCI_GETCOLUMN, start)
+        # end = self.SendScintilla(self.SCI_GETCOLUMN, end)
+        # ch = self.SendScintilla(self.SCI_GETCHARAT, position)
+        # print(ch)
+        text = self.text(start,end)
+        print("hotspot '{}' clicked start from {} end at {}".format(text, start, end))
 
-        relPath, line = self.__lexer.parser.where_to_jump(text)
+        relPath, line = self.lxr.parser.where_to_jump(text)
         linefocus = int(line) - 1
         print("jump to file: " + relPath)
+        # assert 1==0
         with open('path.txt', 'r') as fr:
-            path = fr.readlines()
-        projectFolderPath = path
+            projectFolderPath = fr.readlines()
         relPath = projectFolderPath + '\\' + relPath
-        self.__show_symbol_handle(relPath, linefocus=linefocus, colfocus=0)
+        # self.__show_symbol_handle(relPath, linefocus=linefocus, colfocus=0)
         
     ''''''

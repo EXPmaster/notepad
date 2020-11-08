@@ -6,39 +6,38 @@ import sqlite3
 from singleton import Singleton
 
 @Singleton
-class Ctags_parser():
+class Ptags_parser():
 
     def __init__(self):
         self.json_string = None
         self.json_data = None
         self.conn = None
         self.cursor = None
-        self.build_ctags()
+        self.build_ptags()
 
     ''''''
 
-    def build_ctags(self):
+    def build_ptags(self):
         if os.path.exists('path.txt'):
             with open('path.txt', 'r') as fr:
                 path = fr.readlines()
             self.projectFolderPath = path[0]
             os.chdir(self.projectFolderPath)
-            print("Launching ctags on: " + self.projectFolderPath)
-            proc = subprocess.Popen(["ctags", "-R", "--output-format=json",
-                                    "--fields=+n", "--c-types=+l"],
+            print("Launching ptags on: " + self.projectFolderPath)
+            proc = subprocess.Popen(["python", "ptags.py", '-path', self.projectFolderPath],
                                     stdout=subprocess.PIPE, shell=True)
             time.sleep(0.1)
-            print("Waiting for ctags to finish")
+            print("Waiting for ptags to finish")
             time.sleep(0.1)
             self.json_string = (proc.communicate()[0]).decode('utf-8')
             print("")
             print("")
 
-            self.build_ctags_database()
+            self.build_ptags_database()
 
     ''''''
 
-    def build_ctags_database(self):
+    def build_ptags_database(self):
         self.json_string = self.json_string.replace("}\r\n", "},\r\n")
         self.json_string = "[" + self.json_string + "]"
         self.json_string = self.json_string.replace("},\r\n]", "}\r\n]")
@@ -48,28 +47,19 @@ class Ctags_parser():
         except:
             print("Could not convert json_string to json_data")
 
-        self.conn = sqlite3.connect(":memory:")
+        self.conn = sqlite3.connect("tags")
         self.cursor = self.conn.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS main
-            (_type TEXT, name TEXT, path TEXT, pattern TEXT, line TEXT,
-            typeref TEXT, kind TEXT, scope TEXT, scopeKind TEXT)
+            (def TEXT)
         """)
 
         for entry in self.json_data:
             self.cursor.execute("""
             INSERT INTO main
-            (_type, name, path, pattern, line, typeref, kind, scope, scopeKind)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (   entry["_type"] if "_type" in entry else None,
-                    entry["name"] if "name" in entry else None,
-                    entry["path"] if "path" in entry else None,
-                    entry["pattern"] if "pattern" in entry else None,
-                    entry["line"] if "line" in entry else None,
-                    entry["typeref"] if "typeref" in entry else None,
-                    entry["kind"] if "kind" in entry else None,
-                    entry["scope"] if "scope" in entry else None,
-                    entry["scopeKind"] if "scopeKind" in entry else None
+            (def)
+            VALUES (?)""",
+                (   entry["def"] if "def" in entry else None
                 )
             )
         ###
@@ -94,6 +84,7 @@ class Ctags_parser():
             
             
     def where_to_jump(self, name):
+        print('name:{}'.format(name))
         try:
             self.cursor.execute("SELECT path,line FROM main WHERE name = \"{n}\"".format(n=name))
             data = self.cursor.fetchone()
