@@ -19,6 +19,7 @@ import pickle
 import shutil
 from RunWindow import RunBrowser
 #from hd_board import PaintForm
+from SplashCall import Splash
 
 
 class TabItem:
@@ -727,7 +728,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     current_content = textedit.document().findBlockByLineNumber(i).text()
         #     current_content += '  \n'
         #     content += current_content
-
+    def windowShow(self):
+        youWin.show()  #你的主页程序
 #style_transfer
 
 
@@ -736,7 +738,12 @@ if __name__ == '__main__':
     #     qss = f.read()
     app = QApplication(sys.argv)
     #style_transfer()
+    youWin = Notebook()
     # app.setStyleSheet(qss)
-    MainWindow = Notebook()
-    MainWindow.show()
+    #MainWindow = Notebook()
+    #MainWindow.show()
+    UiSplash = Splash()  ##开机界面
+    UiSplash.show()
+    UiSplash.splashClose.connect(youWin.windowShow) #开机界面关闭连接打开你的主页
+    
     sys.exit(app.exec_())
