@@ -2,3 +2,4 @@ opencv-contrib-python-headless==4.4.0.44
 PyQt5
 QScintilla
 pyperclip
+pyflakes

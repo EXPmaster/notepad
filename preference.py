@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QListWidget, \
     QStackedWidget, QHBoxLayout, QFormLayout, QLineEdit, QFontComboBox, \
     QPushButton, QVBoxLayout, QLabel, QMessageBox, QFileDialog
-from PyQt5.QtCore import QRegExp
+from PyQt5.QtCore import QRegExp, QProcess
 from PyQt5.QtGui import QIntValidator, QFont
 import configparser
 
@@ -65,6 +65,7 @@ class Preference(QWidget):
         except Exception as e:
             self.save_cfg()
         self.par.font_content = self.font_content
+        self.par.interpreter = self.interpreter
 
     def save_cfg(self):
         cfg_parser = configparser.ConfigParser()
@@ -156,6 +157,7 @@ class Preference(QWidget):
         if fontsize in range(12, 31):
             self.font_content = font_family
             self.par.font_content = font_family
+            self.par.interpreter = self.interpreter
             self.par.setFontSizeEvent()
             self.save_cfg()
         else:
@@ -185,8 +187,10 @@ class Preference(QWidget):
 
 
 if __name__ == '__main__':
+
     import sys
     app = QApplication(sys.argv)
     demo = Preference()
     demo.show()
     sys.exit(app.exec_())
+

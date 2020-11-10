@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import platform
 import sys
 from UI_forms import Ui_CodePlus
 from all_windows import Find_Win
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
-    QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
+     QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QTextCursor
 from reward_handler import Reward
@@ -16,9 +17,10 @@ from ide_edit import IDEeditor
 from PyQt5.QtGui import QPixmap, QIcon, QKeySequence
 import pickle
 import shutil
-from textedit import  RunBrowser
 import ntpath
 # from hd_board import PaintForm
+from RunWindow import RunBrowser
+#from hd_board import PaintForm
 
 
 class TabItem:
@@ -41,6 +43,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        """-------- System ---------"""
+        self.local_system = platform.system()
         """-------- Short Cuts ---------"""
         self.actionSave.setShortcut(QKeySequence(QKeySequence.Save))
         self.actionUndo.setShortcut(QKeySequence(QKeySequence.Undo))
@@ -60,7 +64,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.actionOpen_File.triggered.connect(self.openfileEvent)  # 打开文件
         self.actionOpen_Folder.triggered.connect(self.openfolderEvent)# 打开文件夹
         self.actionSave.triggered.connect(self.savefileEvent)  # 保存文件
-        # self.actionSave.setShortcut('Ctrl + S')
         self.actionSave_All.triggered.connect(self.saveallEvent)  # 全部保存
         self.actionSave_As.triggered.connect(self.saveasEvent)  # 另存为
         self.actionClose.triggered.connect(self.closefileEvent)  # 关闭
@@ -87,6 +90,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.statusbar.addWidget(self.lb_margin, 4)
         self.statusbar.addWidget(self.lb_lang, 1)
         """-------- Dir Tree ---------"""
+        self.model = QDirModel()
         """ view from source"""
         """-------- Run Event ---------"""
         self.dock_win = QtWidgets.QDockWidget()
@@ -97,21 +101,29 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.teridx = 0
         self.dock_win.setFeatures(QDockWidget.DockWidgetVerticalTitleBar)
         self.dock_tab.setTabsClosable(True)
-        self.dock_tab.tabCloseRequested.connect(self.dock_tab.close)
+        self.dock_tab.tabCloseRequested.connect(self.run_close_event)
         self.run_event = False
         self.actionStop.setDisabled(True)
-        self.actionRun.triggered.connect(self.new_run_event)
-        self.actionStop.triggered.connect(self.stop_run)
         """-------- Basic Configs ---------"""
         self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
         self.tabidx = 0
-        self.font_content = ...
+        self.font_content = None  # 字体和大小
+        self.interpreter = None  # 解释器
         self.preference = Preference(par=self)
         self.tab_dict = {}  # 存放tab
         self.file_save_path = None  # 保存文件的路径
         self.language = 'txt'  # 当前语言
-        # self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        """-------- Terminal ---------"""
+        self.actionNew_Terminal.triggered.connect(self.new_terminal_event)
+        # self.actionClose_Terminal.triggered.connect(self.close_terminal_event)
+        """-------- Run ---------"""
+        self.run_browser = RunBrowser(self.font_content)
+        self.run_browser.startSignal.connect(self.run_start_event)
+        self.run_browser.exitSignal.connect(self.run_exit_event)
+        self.gcc = None
         self.actionRun.triggered.connect(self.new_run_event)
+        self.actionStop.triggered.connect(self.stop_run)
+        self.actionCompile.triggered.connect(self.compile_event)
         """--------tool------------"""
         # self.actionWrite_Board.triggered.connect(self.OpenBoard)
 
@@ -161,14 +173,16 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def stop_run(self):
         self.run_browser.process.close()
 
+    def run_start_event(self):
+        self.actionRun.setDisabled(True)
+        self.actionStop.setDisabled(False)
+
     def run_exit_event(self):
         self.actionRun.setDisabled(False)
         self.actionStop.setDisabled(True)
 
     def new_run_event(self):
         if not self.run_event:
-            self.run_browser = RunBrowser()
-            self.run_browser.exitSignal.connect(self.run_exit_event)
             pix = QPixmap('./imgs/run.jpg')
             icon = QIcon()
             icon.addPixmap(pix)
@@ -180,45 +194,61 @@ class Notebook(QMainWindow, Ui_CodePlus):
         cur_path = self.__get_textEditor().filepath
         if cur_path:
             if os.path.splitext(cur_path)[-1] == '.py':
-                self.run_browser.start_process(cur_path)
-                self.actionRun.setDisabled(True)
-                self.actionStop.setDisabled(False)
+                if not self.interpreter:
+                    QMessageBox.warning(self, '提示', '未设置有效的python解释器\n' +
+                                        '->\n'.join(['Code', 'Preference', 'Environment', 'interpreter']))
+                    return
+                cmd = ' '.join([self.interpreter, cur_path])
+                self.run_browser.start_process(cmd)
+            elif os.path.splitext(cur_path)[-1] == '.c':
+                cmd = os.path.splitext(cur_path)[0] + '.exe'
+                if os.path.exists(cmd):
+                    self.run_browser.process.start(cmd)
+                else:
+                    compile_cmd = 'gcc ' + cur_path
+                    self.run_browser.process.start(compile_cmd)
+                    self.run_browser.process.waitForFinished()
+                    if os.path.exists(cmd):
+                        self.run_browser.process.start(cmd)
+
+    def compile_event(self):
+        if not self.run_event:
+            pix = QPixmap('./imgs/run.jpg')
+            icon = QIcon()
+            icon.addPixmap(pix)
+            self.dock_tab.addTab(self.run_browser, 'Run ')
+            index = self.dock_tab.count() - 1
+            self.dock_tab.setTabIcon(index, icon)
+            self.dock_tab.setCurrentIndex(index)
+            self.run_event = True
+        cur_path = self.__get_textEditor().filepath
+        if cur_path:
+            if os.path.splitext(cur_path)[-1] == '.c':
+                cmd = 'gcc ' + cur_path
+                self.run_browser.start_process(cmd)
 
     def run_close_event(self):
+        if not self.actionRun.isEnabled():
+            ref = QMessageBox.information(self, '提示', '还有项目正在运行\n确定退出？', QMessageBox.Yes | QMessageBox.No)
+            if ref == QMessageBox.Yes:
+                self.stop_run()
+            else:
+                return
         self.run_event = False
-        ...
-    #             self.run_browser.clear()
-    #             cmd = 'python ' + cur_path
-    #             self.run_browser.append(cmd)
-    #             self.run_process = QProcess()
-    #             self.run_process.readyReadStandardOutput.connect(self.show_process)
-    #             self.run_process.readyReadStandardError.connect(self.show_error)
-    #
-    #             self.run_process.finished.connect(self.run_exit)
-    #             self.run_process.start(cmd)
-    #             self.actionRun.setDisabled(True)
-    #             self.run_browser.start = True
-    #
-    #
-    # def run_exit(self, exitcode):
-    #     self.run_browser.append('\nProcess finished with exit code ' + str(exitcode))
-    #     self.run_browser.moveCursor(self.run_browser.textCursor().End)
-    #     self.actionRun.setDisabled(False)
-    #     self.run_browser.start = False
-    #
-    # def show_error(self):
-    #     string = self.run_process.readAllStandardError()
-    #     print(string)
-    #     s = str(string, encoding='utf-8')
-    #     self.run_browser.append('<font color = red>' + s)
-    #
-    # def show_process(self):
-    #     string = self.run_process.readAllStandardOutput()
-    #     s = str(string, encoding='utf-8')
-    #     self.run_browser.append(s[:-2])
-    #     print(self.run_process.isWritable())
+        self.dock_tab.removeTab(0)
 
+    def new_terminal_event(self):
+        if self.local_system == 'Windows':
+            os.system('start cmd')
+        elif self.local_system == 'Linux':
+            os.system('gnome-terminal')
+        elif self.local_system == 'Darwin':
+            os.system('open -a Terminal .')
 
+    def close_terminal_event(self):
+        if self.local_system == 'Darwin':
+            import appscript
+            appscript.app('Terminal').do_script('exit')
     # def new_terminal_event(self):
     #     from threading import Thread
     #     t = Thread(target=self.aaa)
@@ -237,7 +267,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
     #     # self.win.setKeyboardGrabEnabled(True)
     #     # self.win.setMouseGrabEnabled(True)
 
-    #查找
+    # 查找
     def text_find(self):
         textedit = self.__get_textEditor()
         # if isinstance(textedit, QTextEdit):
@@ -245,7 +275,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.win_find_is_show = True
             self.find_win = Find_Win(self,textedit)
             self.find_win.show()
-
 
     def text_undo(self):
         textedit = self.__get_textEditor()
@@ -322,6 +351,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.actionPlain_Text.setDisabled(True)
             self.actionMarkdown.setDisabled(True)
             self.actionRun.setDisabled(True)
+            self.actionCompile.setDisabled(True)
             self.enableClickFlag = False
         else:
             if not self.enableClickFlag:
@@ -342,6 +372,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
                 self.actionPlain_Text.setDisabled(False)
                 self.actionMarkdown.setDisabled(False)
                 self.actionRun.setDisabled(False)
+                self.actionCompile.setDisabled(False)
 
     def cur_language(self):
         if self.tabWidget.count() == 0:
@@ -409,6 +440,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # text_editor = Editor()
         text_editor = IDEeditor(name=newfile_name, parent_tabWidget=self.tabWidget,
                                 language=language, font_content=self.font_content)
+        text_editor.newFileSignal.connect(lambda: self.model.refresh())
         # text_editor.textChange.connect(self.__handle_textChange)
         # text_editor.setStyleSheet('background-color:rgb(255,255,0);')
         layout.addWidget(text_editor, 0, 0, 1, 1)
@@ -420,6 +452,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.tabWidget.setCurrentIndex(index)
         if language == 'md':
             self.markdown_handler()
+        else:
+            self.normalmode_handler()
 
     def openfileEvent(self, file_path=None, mapping=None):
         r"""
@@ -436,6 +470,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
             if not file_path:
                 return
         # 判断文件是否可读取
+        if os.path.isdir(file_path):  # 屏蔽文件夹
+            return
         if not os.path.splitext(file_path)[-1] in ['.py', '.c', '.txt', '.md']:
             QMessageBox.warning(self, u'警告', u'文件类型不支持！')
             return
@@ -456,7 +492,6 @@ class Notebook(QMainWindow, Ui_CodePlus):
     def openfolderEvent(self):
         folder_path = QFileDialog.getExistingDirectory(self, '请选择打开的文件夹')
         if folder_path:
-            self.model = QDirModel()
             self.dirtree.setModel(self.model)
             self.dirtree.setRootIndex(self.model.index(folder_path))
             self.dirtree.setAnimated(False)
@@ -464,7 +499,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
             self.dirtree.setSortingEnabled(True)
             self.dirtree.doubleClicked.connect(self.__choose_file)
             self.dirtree.setWindowTitle("Dir View")
-            self.dirtree.setHeaderHidden(True)
+            # self.dirtree.setHeaderHidden(True)
             with open('path.txt', 'w') as fw:
                 fw.write(folder_path)
 
@@ -544,6 +579,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
         for tabitem in self.tab_dict.values():
             textedit = tabitem.text
             textedit.setFontSize(self.font_content)
+        self.run_browser.set_font(self.font_content)
 
     def rewardEvent(self):
         r"""
@@ -628,6 +664,10 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.close()
 
     def markdown_handler(self):
+        self.actionC.setDisabled(False)
+        self.actionPython.setDisabled(False)
+        self.actionPlain_Text.setDisabled(False)
+        self.actionMarkdown.setDisabled(True)
         index = self.tabWidget.currentIndex()
         _, tabitem = self.__find_tab_by_index(index)
         current_tab = tabitem.tab
@@ -654,10 +694,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # layout_md = QGridLayout(md)
         # text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget,
         #                         language='txt', font_content=self.font_content)
-        text_browser_md = TextEditorS(name='md_show', parent_tabWidget=self.tabWidget,
-                                language='md')
+        text_browser_md = TextEditorS(name='md_show', parent_tabWidget=self.tabWidget, language='md')
 
-        text_browser_md.setReadOnly(True)
+        # text_browser_md.setReadOnly(True)
         # text_editor_txt = TextEditorS(name='md_txt', parent_tabWidget=self.tabWidget, language='txt')
         # text_browser_md = TextEditorS(name='md_md', parent_tabWidget=self.tabWidget, language=self.language)
         # layout_md.addWidget(text_editor_txt, 0, 0, 1, 1)
@@ -675,6 +714,21 @@ class Notebook(QMainWindow, Ui_CodePlus):
         # text_editor_txt.document().blockCountChanged.connect(self.show_markdown)
 
     def normalmode_handler(self):
+        if self.language == 'py':
+            self.actionC.setDisabled(False)
+            self.actionPython.setDisabled(True)
+            self.actionPlain_Text.setDisabled(False)
+            self.actionMarkdown.setDisabled(False)
+        elif self.language == 'txt':
+            self.actionC.setDisabled(False)
+            self.actionPython.setDisabled(False)
+            self.actionPlain_Text.setDisabled(True)
+            self.actionMarkdown.setDisabled(False)
+        else:
+            self.actionC.setDisabled(True)
+            self.actionPython.setDisabled(False)
+            self.actionPlain_Text.setDisabled(False)
+            self.actionMarkdown.setDisabled(False)
         index = self.tabWidget.currentIndex()
         _, tabitem = self.__find_tab_by_index(index)
         current_tab = tabitem.tab

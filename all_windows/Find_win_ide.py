@@ -130,7 +130,6 @@ class Find_Win(QMainWindow, Ui_Find):
 
     def clear(self):
         self.textedit.resetSelectionForegroundColor()
-        self.textedit
         self.start = self.text_content.find(self.text_target, self.start+len(self.text_target))
 
     """----curse移动选中指定位置start目标文本----"""

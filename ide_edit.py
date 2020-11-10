@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget,QFileSystemModel
+from PyQt5.QtCore import Qt, pyqtSignal,QFileSystemWatcher
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 import os
 import functools
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
@@ -17,6 +19,7 @@ class IDEeditor(QsciScintilla):
         文本框类
     """
     ARROW_MARKER_NUM = 8
+    newFileSignal = pyqtSignal()
 
     def __init__(self, name, show_symbol=None, parent=None, parent_tabWidget=None, language='txt',
                  font_content=None):
@@ -25,6 +28,7 @@ class IDEeditor(QsciScintilla):
         self.setObjectName(name)
         # self.document().setModified(False)
         # self.setWindowModified(False)
+        self.setUtf8(True)
         self.setModified(False)
         self.setText('')
         self.filepath = None
@@ -199,14 +203,21 @@ class IDEeditor(QsciScintilla):
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
         # Clickable margin 1 for showing markers
-        # self.setMarginSensitivity(1, True)
-        #
-        # self.markerDefine(QsciScintilla.RightArrow,
-        #                   self.ARROW_MARKER_NUM)
-        # self.setMarkerBackgroundColor(QColor("#ee1111"),
-        #                               self.ARROW_MARKER_NUM)
+        self.setMarginSensitivity(1, True)
+        self.marginClicked.connect(self.on_margin_clicked)
+        self.markerDefine(QsciScintilla.RightArrow,
+                          self.ARROW_MARKER_NUM)
+        self.setMarkerBackgroundColor(QColor("#ee1111"),
+                                      self.ARROW_MARKER_NUM)
         # 取消显示横向bar
         # self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+
+    def on_margin_clicked(self, nmargin, nline, modifiers):
+        # Toggle marker for the line the margin was clicked on
+        if self.markersAtLine(nline) != 0:
+            self.markerDelete(nline, self.ARROW_MARKER_NUM)
+        else:
+            self.markerAdd(nline, self.ARROW_MARKER_NUM)
 
     def load(self, file_path, mapping=None):
         r"""
@@ -290,6 +301,7 @@ class IDEeditor(QsciScintilla):
             self.setModified(False)
             index = self.parent_tabw.currentIndex()
             self.parent_tabw.setTabText(index, tmpfilename)
+            self.newFileSignal.emit()
             return True
         else:
             # QMessageBox.warning(self, 'Warning', 'File name should not be empty')
