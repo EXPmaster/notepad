@@ -4,6 +4,7 @@ from UI_forms import Ui_Form_reward
 from PyQt5 import QtWidgets
 import cv2
 from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtWidgets import QGridLayout
 
 
 class Reward(QtWidgets.QWidget, Ui_Form_reward):

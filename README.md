@@ -1,13 +1,55 @@
-### Monkey Editor (Python 大作业)
-
+## Monkey Editor (Python 大作业)
 
+
+制作：猴子工作室
+
+成员名单：
 吴栋、廖满文、汪潇翔、文一晴、吴雨暄、张维天
 
-#### 项目简介
+### 项目简介
 
-Python+PyQt5实现一个NotePad 文本编辑器，支持手写输入
+Python+PyQt5实现的一个文本编辑器，支持手写输入
 
-#### 功能需求
+本项目现放在https://github.com/EXPmaster/notepad, 
+后续可能会时不时地进行维护
+
+### Installation
+1. 新建Anaconda虚拟环境
+
+   ```shell script
+   conda create -n snake python=3.7 -y
+   ```
+   
+2. 激活环境
+
+   ```shell script
+   conda activate snake
+   ```
+
+3. 安装pytorch, torchvision
+
+   ```shell script
+   conda install pytorch torchvision -c pytorch
+   ```
+   
+   若安装太慢，可以尝试使用清华源镜像安装
+   ```shell script
+   conda install pytorch torchvision --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
+   ```
+
+4. 安装依赖包
+
+   ```shell script
+   pip install -r requirements.txt
+   ```
+
+5. 运行
+
+   ```shell script
+   python main.py
+   ```
+
+### 功能需求
 
 - [x]   基础UI界面(lmw)
 
@@ -40,6 +82,7 @@ Python+PyQt5实现一个NotePad 文本编辑器，支持手写输入
 - [x]	程序运行logo(wxx)
 - [ ]   ~~小键盘插件~~
 - [x]   打赏界面(lmw)
+- [x]   启动界面(wyq)
 
 #### 已知bug
 * 潜在的内存泄漏
@@ -49,18 +92,60 @@ Python+PyQt5实现一个NotePad 文本编辑器，支持手写输入
 
 ```
 .
-├── README.md  // README
-├── UI  // 存放Designer 生成的UI文件
-│   ├── MainWindow.ui  // 主界面
-│   └── Reward.ui  // 打赏界面
-├── UI_forms  // 存放UI导出的py文件
+├── AST.py
+├── LICENSE
+├── README.md
+├── RunWindow
+│   ├── __init__.py
+│   └── run_window.py
+├── SplashCall.py
+├── UI
+│   ├── Find.ui
+│   ├── MainWindow.ui
+│   ├── Preference.ui
+│   ├── Reward.ui
+│   └── ui_Splash.ui
+├── UI_forms
+│   ├── Find.py
 │   ├── MainWindow.py
 │   ├── Reward.py
-│   ├── __init__.py  // 导入py文件里的类
-├── imgs  // 存放图片
-│   └── qrcode.PNG  // 打赏二维码
-├── main.py  // 运行notepad的主程序
-└── reward_handler.py  // 打赏函数
+│   ├── __init__.py
+│   └── ui_Splash.py
+├── all_windows
+│   ├── Find_win.py
+│   ├── Find_win_ide.py
+│   └── __init__.py
+├── config.ini
+├── hd_board
+│   ├── PaintBoard.py
+│   ├── __init__.py
+│   ├── board.py
+│   ├── model_best.pth.tar
+│   ├── nets.py
+│   ├── new_char_dict.txt
+│   ├── paint.ui
+│   ├── temp.png
+│   ├── test_img
+│   │   ├── 1.png
+│   │   └── 2.png
+│   ├── train.py
+│   ├── ui_paint.py
+│   └── utils.py
+├── ide_edit.py
+├── image.py
+├── imgs
+│   ├── image.qrc
+│   ├── qrcode.PNG
+│   ├── run.jpg
+│   └── test.png
+├── main.py
+├── preference.py
+├── requirements.txt
+├── reward_handler.py
+├── style.qss
+├── temp.png
+└── textedit.py
+
 ```
 
 

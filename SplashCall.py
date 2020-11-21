@@ -10,6 +10,7 @@ class Splash(QWidget):
     splashClose = pyqtSignal()                               #自定义信号
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.ui = Ui_Form()                                 #命名ui 为form的对象
         self.ui.setupUi(self)                               #导入QWidget基本窗体到ui
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowStaysOnTopHint)  # 设置无边框并置顶 '''注意：ui是Ui_from的对象，不是窗体基类，所以不能使用ui.setWindowFlags'''

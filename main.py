@@ -110,7 +110,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         self.run_event = False
         self.actionStop.setDisabled(True)
         """-------- Basic Configs ---------"""
-        self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.tabWidget.setAttribute(Qt.WA_DeleteOnClose, True)
         self.tabidx = 0
         self.font_content = None  # 字体和大小
         self.interpreter = None  # 解释器
@@ -330,6 +331,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
         textedit.setlanguage(language)
         self.language = language
         self.lb_lang.setText(self.language)
+        # if self.language == 'txt':
+        #     self.actionPlain_Text.setDisabled(True)
+
         if signal_src == 'Markdown':
             self.markdown_handler()
         else:
@@ -743,6 +747,7 @@ class Notebook(QMainWindow, Ui_CodePlus):
 if __name__ == '__main__':
     # with open("style.qss") as f:
     #     qss = f.read()
+    app = 0
     app = QApplication(sys.argv)
     #style_transfer()
     youWin = Notebook()

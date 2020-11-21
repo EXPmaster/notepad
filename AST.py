@@ -75,7 +75,7 @@ for x in dir(checker.Checker):
 
 def goto_definition(word, row, col, contents=None):
     """
-    Main function called by vim.
+    Main function called by editor.
 
     Parses the buffer into an AST, then uses the Checker to find the definition
     of the identifier under the cursor, and moves the cursor to the position of

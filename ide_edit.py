@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget,QFileSystemModel
-from PyQt5.QtCore import Qt, pyqtSignal,QFileSystemWatcher
-from PyQt5.QtWidgets import QTextEdit, QFileDialog, QMessageBox, QPlainTextEdit, QWidget
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, pyqtSignal,QFileSystemWatcher, QTimer
 import os
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciLexerCPP,\
     QsciLexerMarkdown, QsciAPIs

@@ -16,7 +16,7 @@ class TextEditorS(QTextEdit):
     def __init__(self, name, parent=None, parent_tabWidget=None, language='txt',
                  font_size=12):
         super().__init__(parent)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
         self.setObjectName(name)
         self.document().setModified(False)
         self.setPlainText('')
