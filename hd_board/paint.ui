@@ -96,8 +96,8 @@
      <rect>
       <x>410</x>
       <y>400</y>
-      <width>61</width>
-      <height>16</height>
+      <width>91</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -149,9 +149,14 @@
      <rect>
       <x>320</x>
       <y>380</y>
-      <width>131</width>
+      <width>171</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Pen/Eraser thickness</string>
@@ -193,7 +198,7 @@
      <x>0</x>
      <y>0</y>
      <width>500</width>
-     <height>23</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>

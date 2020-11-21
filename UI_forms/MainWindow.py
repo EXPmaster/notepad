@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CodePlus(object):
     def setupUi(self, CodePlus):
         CodePlus.setObjectName("CodePlus")
+        
         CodePlus.resize(800, 600)
         # self.centralwidget = QtWidgets.QWidget(CodePlus)
         self.centralwidget = QtWidgets.QSplitter(CodePlus)
@@ -178,6 +179,7 @@ class Ui_CodePlus(object):
     def retranslateUi(self, CodePlus):
         _translate = QtCore.QCoreApplication.translate
         CodePlus.setWindowTitle(_translate("CodePlus", "CodePlus"))
+        
         self.menuCode.setTitle(_translate("CodePlus", "Code"))
         self.menuFile.setTitle(_translate("CodePlus", "File"))
         self.menuLanguage.setTitle(_translate("CodePlus", "Language"))

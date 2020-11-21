@@ -7,7 +7,7 @@ from all_windows import Find_Win
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
      QFileDialog, QWidget, QGridLayout, QTextEdit, QDirModel, QTabWidget, QDockWidget
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QTextCursor
+from PyQt5.QtGui import QTextCursor,QIcon,QPixmap
 from reward_handler import Reward
 from PyQt5.QtCore import Qt, QProcess
 from textedit import TextEditorS
@@ -19,6 +19,10 @@ import pickle
 import shutil
 from RunWindow import RunBrowser
 from hd_board import PaintForm
+from hd_board import PaintForm
+from SplashCall import Splash
+import ctypes
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 
 
 class TabItem:
@@ -40,6 +44,9 @@ class Notebook(QMainWindow, Ui_CodePlus):
     """
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.icon = QIcon()
+        self.icon.addPixmap(QPixmap("./tianhou.ico"), QIcon.Normal, QIcon.Off)
+        self.setWindowIcon(self.icon)
         self.setupUi(self)
         """-------- System ---------"""
         self.local_system = platform.system()
@@ -728,7 +735,8 @@ class Notebook(QMainWindow, Ui_CodePlus):
         #     current_content = textedit.document().findBlockByLineNumber(i).text()
         #     current_content += '  \n'
         #     content += current_content
-
+    def windowShow(self):
+        youWin.show()  #你的主页程序
 #style_transfer
 
 
@@ -737,7 +745,12 @@ if __name__ == '__main__':
     #     qss = f.read()
     app = QApplication(sys.argv)
     #style_transfer()
+    youWin = Notebook()
     # app.setStyleSheet(qss)
-    MainWindow = Notebook()
-    MainWindow.show()
+    #MainWindow = Notebook()
+    #MainWindow.show()
+    UiSplash = Splash()  ##开机界面
+    UiSplash.show()
+    UiSplash.splashClose.connect(youWin.windowShow) #开机界面关闭连接打开你的主页
+    
     sys.exit(app.exec_())

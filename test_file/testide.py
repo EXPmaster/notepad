@@ -1,4 +1,3 @@
-a = 1
-b = 2
-c = a+b
-print(c)
+name=input("please input your name:"
+
+print("Hello "+name)
