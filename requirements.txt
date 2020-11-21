@@ -3,3 +3,4 @@ PyQt5
 QScintilla
 pyperclip
 pyflakes
+pillow==7.00
